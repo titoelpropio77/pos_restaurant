@@ -1,0 +1,81 @@
+@import 'tailwindcss';
+
+@source '../views/admin/**/*.blade.php';
+@source '../views/components/admin/**/*.blade.php';
+@source '../../app/Admin/**/*.php';
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+
+/* Mismos tokens que la pantalla del POS (public/css/pos/pos.css) */
+@theme {
+    --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --color-marca-50: #fff4ec;
+    --color-marca-100: #ffe3cf;
+    --color-marca-500: #f2711c;
+    --color-marca-600: #d65d0e;
+    --color-marca-700: #ad4a0b;
+    --color-tinta: #1f2933;
+    --color-tenue: #6b7785;
+    --color-borde: #dde2e8;
+    --color-fondo: #eef1f5;
+    --color-panel: #1d2633;
+    --color-panel-2: #2a3545;
+}
+
+@utility btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-3.5 py-2 text-sm font-semibold transition disabled:opacity-50 cursor-pointer;
+}
+
+@utility btn-primario {
+    @apply btn bg-marca-500 text-white shadow-sm hover:bg-marca-600;
+}
+
+@utility btn-secundario {
+    @apply btn border border-borde bg-white text-tinta hover:bg-slate-50;
+}
+
+@utility btn-peligro {
+    @apply btn border border-red-200 bg-white text-red-600 hover:bg-red-50;
+}
+
+@utility btn-chico {
+    @apply px-2.5 py-1.5 text-xs;
+}
+
+@utility tarjeta {
+    @apply rounded-xl bg-white shadow-sm ring-1 ring-black/5;
+}
+
+@utility campo {
+    @apply block w-full rounded-lg border border-borde bg-white px-3 py-2 text-sm text-tinta shadow-xs outline-none transition focus:border-marca-500 focus:ring-2 focus:ring-marca-100;
+}
+
+@utility etiqueta {
+    @apply mb-1 block text-xs font-semibold text-tenue;
+}
+
+@utility tabla {
+    @apply w-full text-sm;
+}
+
+@utility num {
+    @apply text-right tabular-nums whitespace-nowrap;
+}
+
+@utility insignia {
+    @apply inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold;
+}
+
+@layer components {
+    .tabla thead th { @apply sticky top-0 bg-slate-50 px-3 py-2.5 text-left text-xs font-semibold tracking-wide text-tenue uppercase; }
+    .tabla tbody td { @apply border-t border-borde px-3 py-2.5 align-middle; }
+    .tabla tbody tr:hover { @apply bg-marca-50/40; }
+    .tabla tfoot td { @apply border-t-2 border-borde bg-slate-50 px-3 py-2.5 font-bold; }
+}
+
+[x-cloak] { display: none !important; }
+
+@media print {
+    .no-imprimir { display: none !important; }
+    body { background: white; }
+    .tarjeta { box-shadow: none; }
+}

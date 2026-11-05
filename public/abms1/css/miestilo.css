@@ -1,0 +1,229 @@
+
+@media (min-width: 450px) {
+  .moneda {
+        max-height: 35px;
+            max-width: 30px;
+  }
+}
+
+
+@media (min-width: 500px) {
+  .moneda {
+        max-height: 35px;
+        max-width: 39px;
+  }
+}
+
+@media (min-width: 768px) {
+  .moneda {
+        max-height: 35px;
+
+  }
+}
+@media (min-width: 992px) {
+  .moneda {
+     max-height: 58px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .moneda {
+    max-height: 58px;
+        min-width: 64px;
+  }
+}
+
+.botonCategoriaMobil{
+     border: none;
+    width: 93px;
+    height: 51px;
+    font-size: 10pt;
+    font-weight: bold;
+    color: black;
+    background: #9FF;
+    box-shadow: 1px 1px #999;
+    margin-right: 4px;
+    margin-bottom: 3px;
+    padding: 0;
+    margin-left: 1px;
+    margin-top: 1px;
+    white-space: inherit;
+     text-shadow: 2px 2px white;
+}
+.botonCategoria{
+    border: none;
+    width: 99px;
+    height: 56px;
+    font-size: 10pt;
+    font-weight: bold;
+    color: black;
+    background: #9FF;
+    box-shadow: 1px 1px #999;
+    margin-right: 4px;
+    margin-bottom: 3px;
+    padding: 0;
+    margin-left: 1px;
+    margin-top: 1px;
+    white-space: inherit;
+    text-shadow: 2px 2px #49f54b;
+}
+.botonCategoria:hover{
+        text-shadow: 2px 2px #49f54b;
+    color: #2f3eff;
+    background: #5bc0de;
+}
+.divCategoriaMobil{
+max-height: 114px;
+    overflow: auto;
+    background: #CCFFFF;
+}
+.divCategoria{
+    max-height: 127px;
+    overflow: auto;
+    background: #CCFFFF;
+  min-height:128px;
+}
+
+.divProductoMobil{
+  max-height: 150px;
+    overflow: auto;
+    background: #ECF5FF;
+    margin-top: -59px;
+    min-height: 153px;
+}
+.divProducto{
+        max-height: 240px;
+    overflow: auto;
+    background: #ECF5FF;
+    margin-top: -48px;
+    min-height: 240px;
+}
+
+.colorhover:hover{
+  background: #5ed450;
+}
+.colorhover{
+  background: #8aff7c;
+}
+
+#loading{
+    width:100%;
+    height:100%;
+    background-color:#ccc;
+    position:fixed;
+    top:0;
+    left:0;
+    z-index:9999;
+    opacity: 0.8;
+    filter: alpha(opacity=80);
+}
+
+#menu ul{
+      list-style: none;
+      list-style-type: none;
+      list-style-position: outside;
+}
+ 
+#menu ul li{
+      line-height: 30px;
+      font-size: 16px;
+      cursor:pointer;
+}
+ 
+#menu{
+      width:250px;
+      position:absolute;      
+      border:1px solid black;
+       
+      -moz-box-shadow: 0 0 5px #888;
+      -webkit-box-shadow: 0 0 5px#888;
+      box-shadow: 0 0 5px #888;
+}
+.reloj{
+  font-size: 43px;
+  font-family: "Digital Readout Thick Upright";
+
+}
+@font-face {
+
+font-family: "Digital Readout Thick Upright";
+src:
+        url("font-letras/DIGIRT__.TTF") format("truetype"),
+        url("font-letras/fDigirc__.ttf") format("truetype"),
+        url("font-letras/Digire__.ttf") format("truetype"),
+        url("font-letras/Digireu_.ttf") format("truetype"),
+        url("font-letras/Digirtu_.ttf") format("truetype"),
+        url("font-letras/DIGIRU__.TTF") format("truetype"),
+url("font-letras/font-letras/Digircu_.tff") format("truetype");
+
+}
+.relojMobil{
+      margin: 0;
+  font-size:28px;
+  font-family: "Digital Readout Thick Upright";
+      margin-top: 10px;
+}
+.fechaMobilH3{
+      font-size: 18px;
+    margin: 0;
+    margin-top: 20px;
+}
+/*label usuario*/
+.labelU{
+  font-size: 22px;
+}
+.labelUMobil{
+  font-size: 18px;
+      margin-top: 13px;
+}
+/*label tipo cambio*/
+.labelT{
+    font-size: 22px;
+}
+.labelTMobil{
+  font-size: 17px;
+      margin-top: 10px;
+}
+.labelTurno{
+  font-size: 24px;
+}
+.labelTurnoMobil{
+      margin-top: 10px;
+  font-size: 21px;
+}
+.agregarPM{
+  font-size: 10pt;
+    margin: 2px;
+    width: 65px;
+    height: 45px;
+}
+.aumentarPM {
+    font-size: 10pt;
+    margin: 2px;
+    width: 65px;
+    height: 45px;
+}
+.clickMenuGrupo{
+   display: inline-block;
+      text-align: center;
+      vertical-align: middle;
+      touch-action: manipulation;
+    cursor: pointer;
+  line-height: 1.33;
+    border-radius: 6px;
+    border: none;
+    width: 99px;
+    height: 56px;
+    font-size: 10pt;
+    font-weight: bold;
+    color: white;
+    background: black;
+    /*box-shadow: 1px 1px #999;*/
+    margin-right: 4px;
+    margin-bottom: 3px;
+    padding: 0;
+    margin-left: 1px;
+    margin-top: 1px;
+    white-space: inherit;
+    /*text-shadow: 2px 2px #49f54b;*/
+}

@@ -5,6 +5,7 @@ namespace Tests\Feature\Admin;
 use App\Models\Branch;
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\ReportGroup;
 use App\Models\Supply;
 use Illuminate\Http\UploadedFile;
 
@@ -42,6 +43,40 @@ class ProductTest extends AdminTestCase
         $this->assertSame(['x', '', 'x'], [$config->sat, $config->mon, $config->print_kitchen]);
         $this->assertSame('11:00', $config->start_time);
         $this->assertCount(1, $product->recipe);
+    }
+
+    public function test_the_form_uses_the_names_the_controller_validates(): void
+    {
+        $this->post(route('admin.products.store'), $this->data());
+        $product = Product::where('product_name', 'CHICHARRÓN')->firstOrFail();
+        $branch = Branch::first()->id;
+
+        $html = $this->get(route('admin.products.edit', $product))->assertOk()->getContent();
+
+        foreach (['sale_price', 'wholesale_price', 'start_time', 'end_time', 'expires_on', 'enabled'] as $field) {
+            $this->assertStringContainsString("name=\"branches[{$branch}][{$field}]\"", $html);
+        }
+
+        foreach (['days', 'printers'] as $field) {
+            $this->assertStringContainsString("name=\"branches[{$branch}][{$field}][]\"", $html);
+        }
+
+        foreach (['recipe[${i}][supply_id]', 'recipe[${i}][quantity]', 'report_groups[${i}][report_group_id]', 'report_groups[${i}][factor]'] as $field) {
+            $this->assertStringContainsString($field, $html);
+        }
+    }
+
+    public function test_the_report_groups_are_validated_and_saved(): void
+    {
+        $group = ReportGroup::first() ?? ReportGroup::create(['group_name' => 'BEBIDAS', 'order_number' => 1]);
+
+        $this->post(route('admin.products.store'), $this->data(['report_groups' => [['report_group_id' => 999999, 'factor' => 1]]]))
+            ->assertSessionHasErrors('report_groups.0.report_group_id');
+
+        $this->post(route('admin.products.store'), $this->data(['report_groups' => [['report_group_id' => $group->id, 'factor' => 2]]]))
+            ->assertSessionHasNoErrors();
+
+        $this->assertEquals(2, Product::where('product_name', 'CHICHARRÓN')->firstOrFail()->groups()->value('factor'));
     }
 
     public function test_the_pos_charges_the_price_of_the_branch(): void

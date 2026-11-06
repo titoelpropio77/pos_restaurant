@@ -8,10 +8,10 @@
 <form method="POST" enctype="multipart/form-data"
       action="{{ $product->exists ? route('admin.products.update', $product) : route('admin.products.store') }}"
       x-data="{
-          receta: @js($recipe),
-          grupos: @js($groupsProduct),
-          insumos: @js($supplies->map(fn ($i) => ['id' => $i->id, 'name' => $i->supply_name, 'measure' => $i->measure])),
-          medida(id) { const i = this.insumos.find(x => x.id == id); return i ? i.medida : ''; }
+          recipe: @js($recipe),
+          groups: @js($groupsProduct),
+          supplies: @js($supplies->map(fn ($i) => ['id' => $i->id, 'name' => $i->supply_name, 'measure' => $i->measure])),
+          measure(id) { const i = this.supplies.find(x => x.id == id); return i ? i.measure : ''; }
       }">
     @csrf
     @if ($product->exists) @method('PUT') @endif
@@ -42,7 +42,7 @@
                     @foreach ($branches as $branch)
                         @php
                             $c = $configuration->get($branch->id);
-                            $base = "sucursales[{$branch->id}]";
+                            $base = "branches[{$branch->id}]";
                             $enabled = old("branches.{$branch->id}.enabled", $c ? true : ! $product->exists);
                             $days = old("branches.{$branch->id}.days", $c ? collect(PC::DAYS)->keys()->filter(fn ($d) => $c->{$d})->values()->all() : array_keys(PC::DAYS));
                             $printers = old("branches.{$branch->id}.printers", $c ? collect(PC::PRINTERS)->keys()->filter(fn ($i) => $c->{$i})->values()->all() : []);
@@ -55,16 +55,16 @@
                                 <span class="text-xs font-normal text-muted" x-show="!on">— no se vende en esta sucursal</span>
                             </label>
                             <div class="mt-3 grid gap-4 sm:grid-cols-4" x-show="on" x-cloak>
-                                <x-admin.field :name="$base.'[precio_venta]'" label="Precio (Bs)" type="decimal" :value="$c && (float) $c->sale_price > 0 && (float) $c->sale_price !== (float) $product->sale_price ? $c->sale_price : null" />
-                                <x-admin.field :name="$base.'[precio_venta_mayorista]'" label="Precio mayorista" type="decimal" :value="$c?->wholesale_price" />
-                                <x-admin.field :name="$base.'[hora_inicio]'" label="Desde" type="time" :value="$c?->start_time ?: '00:00'" />
-                                <x-admin.field :name="$base.'[hora_fin]'" label="Hasta" type="time" :value="$c?->end_time ?: '00:00'" />
+                                <x-admin.field :name="$base.'[sale_price]'" label="Precio (Bs)" type="decimal" :value="$c && (float) $c->sale_price > 0 && (float) $c->sale_price !== (float) $product->sale_price ? $c->sale_price : null" />
+                                <x-admin.field :name="$base.'[wholesale_price]'" label="Precio mayorista" type="decimal" :value="$c?->wholesale_price" />
+                                <x-admin.field :name="$base.'[start_time]'" label="Desde" type="time" :value="$c?->start_time ?: '00:00'" />
+                                <x-admin.field :name="$base.'[end_time]'" label="Hasta" type="time" :value="$c?->end_time ?: '00:00'" />
                                 <div class="sm:col-span-2">
                                     <span class="label">Días</span>
                                     <div class="flex flex-wrap gap-1">
                                         @foreach (PC::DAYS as $key => $text)
                                             <label class="cursor-pointer">
-                                                <input type="checkbox" name="{{ $base }}[dias][]" value="{{ $key }}" @checked(in_array($key, $days)) class="peer sr-only">
+                                                <input type="checkbox" name="{{ $base }}[days][]" value="{{ $key }}" @checked(in_array($key, $days)) class="peer sr-only">
                                                 <span class="inline-flex h-8 w-9 items-center justify-center rounded-md border border-line text-xs font-semibold text-muted peer-checked:border-brand-500 peer-checked:bg-brand-500 peer-checked:text-panel">{{ $text }}</span>
                                             </label>
                                         @endforeach
@@ -75,13 +75,13 @@
                                     <div class="flex flex-wrap gap-1">
                                         @foreach (PC::PRINTERS as $key => $text)
                                             <label class="cursor-pointer">
-                                                <input type="checkbox" name="{{ $base }}[impresoras][]" value="{{ $key }}" @checked(in_array($key, $printers)) class="peer sr-only">
+                                                <input type="checkbox" name="{{ $base }}[printers][]" value="{{ $key }}" @checked(in_array($key, $printers)) class="peer sr-only">
                                                 <span class="inline-flex h-8 items-center rounded-md border border-line px-2.5 text-xs font-semibold text-muted peer-checked:border-brand-500 peer-checked:bg-brand-500 peer-checked:text-panel">{{ $text }}</span>
                                             </label>
                                         @endforeach
                                     </div>
                                 </div>
-                                <x-admin.field :name="$base.'[f_vence]'" label="Vence (opcional)" type="date" :value="$c && $c->expires_on && $c->expires_on->year < 2999 ? $c->expires_on->format('Y-m-d') : null" />
+                                <x-admin.field :name="$base.'[expires_on]'" label="Vence (opcional)" type="date" :value="$c && $c->expires_on && $c->expires_on->year < 2999 ? $c->expires_on->format('Y-m-d') : null" />
                             </div>
                         </div>
                     @endforeach
@@ -95,21 +95,21 @@
                         <h2 class="font-bold">Receta</h2>
                         <p class="text-sm text-muted">Insumos que se descuentan del almacén por cada unidad vendida.</p>
                     </div>
-                    <button type="button" class="btn-secondary btn-small" @click="receta.push({ insumo_id: '', cantidad: '' })"><i class="fa fa-plus"></i> Agregar insumo</button>
+                    <button type="button" class="btn-secondary btn-small" @click="recipe.push({ supply_id: '', quantity: '' })"><i class="fa fa-plus"></i> Agregar insumo</button>
                 </div>
                 <template x-for="(item, i) in recipe" :key="i">
                     <div class="mb-2 grid grid-cols-[1fr_9rem_auto] gap-2">
-                        <select class="field" :name="`receta[${i}][insumo_id]`" x-model="item.supply_id" required>
+                        <select class="field" :name="`recipe[${i}][supply_id]`" x-model="item.supply_id" required>
                             <option value="">Seleccione el insumo...</option>
                             <template x-for="ins in supplies" :key="ins.id">
-                                <option :value="ins.id" x-text="ins.name" :selected="ins.id == item.insumo_id"></option>
+                                <option :value="ins.id" x-text="ins.name" :selected="ins.id == item.supply_id"></option>
                             </template>
                         </select>
                         <div class="relative">
-                            <input type="number" step="0.001" min="0" class="field pr-12" :name="`receta[${i}][cantidad]`" x-model="item.quantity" placeholder="Cantidad" required>
+                            <input type="number" step="0.001" min="0" class="field pr-12" :name="`recipe[${i}][quantity]`" x-model="item.quantity" placeholder="Cantidad" required>
                             <span class="absolute top-2 right-3 text-xs text-muted" x-text="measure(item.supply_id)"></span>
                         </div>
-                        <button type="button" class="btn-danger" @click="receta.splice(i, 1)"><i class="fa fa-trash-o"></i></button>
+                        <button type="button" class="btn-danger" @click="recipe.splice(i, 1)"><i class="fa fa-trash-o"></i></button>
                     </div>
                 </template>
                 <p class="text-sm text-muted" x-show="recipe.length === 0">Sin receta: la venta no descuenta inventario.</p>
@@ -144,18 +144,18 @@
             <section class="card p-6">
                 <div class="mb-3 flex items-center justify-between">
                     <h2 class="font-bold">Grupos de reporte</h2>
-                    <button type="button" class="btn-secondary btn-small" @click="grupos.push({ grupo_id: '', factor: 1 })"><i class="fa fa-plus"></i></button>
+                    <button type="button" class="btn-secondary btn-small" @click="groups.push({ report_group_id: '', factor: 1 })"><i class="fa fa-plus"></i></button>
                 </div>
                 <template x-for="(item, i) in groups" :key="i">
                     <div class="mb-2 grid grid-cols-[1fr_5rem_auto] gap-2">
-                        <select class="field" :name="`grupos[${i}][grupo_id]`" x-model="item.report_group_id" required>
+                        <select class="field" :name="`report_groups[${i}][report_group_id]`" x-model="item.report_group_id" required>
                             <option value="">Grupo...</option>
                             @foreach ($groups as $id => $name)
-                                <option value="{{ $id }}">{{ $name }}</option>
+                                <option value="{{ $id }}" :selected="item.report_group_id == {{ $id }}">{{ $name }}</option>
                             @endforeach
                         </select>
-                        <input type="number" step="0.01" min="0" class="field" :name="`grupos[${i}][factor]`" x-model="item.factor" title="Factor" required>
-                        <button type="button" class="btn-danger" @click="grupos.splice(i, 1)"><i class="fa fa-trash-o"></i></button>
+                        <input type="number" step="0.01" min="0" class="field" :name="`report_groups[${i}][factor]`" x-model="item.factor" title="Factor" required>
+                        <button type="button" class="btn-danger" @click="groups.splice(i, 1)"><i class="fa fa-trash-o"></i></button>
                     </div>
                 </template>
                 <p class="text-sm text-muted" x-show="groups.length === 0">Opcional. El factor indica cuántas unidades del grupo suma cada venta.</p>

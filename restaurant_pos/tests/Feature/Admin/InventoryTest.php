@@ -32,6 +32,20 @@ class InventoryTest extends AdminTestCase
         ], $extra));
     }
 
+    public function test_the_form_uses_the_names_the_controller_validates(): void
+    {
+        $html = $this->get(route('admin.inventory.create'))->assertOk()->getContent();
+
+        foreach (['lines[${i}][supply_id]', 'lines[${i}][quantity]', 'lines[${i}][cost]', 'name="destination_warehouse_id"'] as $field) {
+            $this->assertStringContainsString($field, $html);
+        }
+    }
+
+    public function test_a_transfer_requires_its_destination(): void
+    {
+        $this->movement_type('TRASPASO', 1)->assertSessionHasErrors('destination_warehouse_id');
+    }
+
     private function stock(?Warehouse $warehouse = null): float
     {
         return (float) WarehouseStock::where(['supply_id' => $this->limon->id, 'warehouse_id' => ($warehouse ?? $this->main)->id])->value('current_stock');

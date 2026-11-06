@@ -63,7 +63,7 @@ class ProductController extends Controller
 
     public function edit(Product $product): View
     {
-        return $this->form($product->load(['branches', 'options', 'recipe', 'report_groups']));
+        return $this->form($product->load(['branches', 'options', 'recipe', 'groups']));
     }
 
     public function update(Request $request, Product $product): RedirectResponse
@@ -129,16 +129,17 @@ class ProductController extends Controller
             'recipe.*.supply_id' => ['required', 'distinct', Tenant::exists('supplies')],
             'recipe.*.quantity' => ['required', 'numeric', 'gt:0'],
             'report_groups' => ['nullable', 'array'],
-            'groups.*.report_group_id' => ['required', 'distinct', Tenant::exists('report_groups')],
-            'groups.*.factor' => ['required', 'numeric', 'gt:0'],
+            'report_groups.*.report_group_id' => ['required', 'distinct', Tenant::exists('report_groups')],
+            'report_groups.*.factor' => ['required', 'numeric', 'gt:0'],
         ], [], [
-            'product_name' => 'name',
+            'product_name' => 'nombre',
             'category_id' => 'categoría',
             'sale_price' => 'precio de venta',
             'barcode' => 'código de barras',
             'recipe.*.supply_id' => 'insumo de la receta',
             'recipe.*.quantity' => 'cantidad de la receta',
-            'groups.*.report_group_id' => 'grupo de reporte',
+            'report_groups.*.report_group_id' => 'grupo de reporte',
+            'report_groups.*.factor' => 'factor del grupo',
         ]);
 
         return DB::transaction(function () use ($request, $product, $data) {

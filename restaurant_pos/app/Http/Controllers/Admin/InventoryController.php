@@ -105,7 +105,7 @@ class InventoryController extends Controller
             'type' => ['required', Rule::in(array_keys(StockMovementService::TYPES))],
             'date' => ['required', 'date', 'before_or_equal:today'],
             'warehouse_id' => ['required', Tenant::exists('warehouses')],
-            'destination_warehouse_id' => ['required_if:tipo,TRASPASO', 'nullable', Tenant::exists('warehouses'), 'different:warehouse_id'],
+            'destination_warehouse_id' => ['required_if:type,TRASPASO', 'nullable', Tenant::exists('warehouses'), 'different:warehouse_id'],
             'movement_reason_id' => ['nullable', Tenant::exists('movement_reasons')],
             'description' => ['nullable', 'string', 'max:500'],
             'lines' => ['required', 'array', 'min:1'],
@@ -117,7 +117,7 @@ class InventoryController extends Controller
             'destination_warehouse_id.required_if' => 'Indique el almacén de destino del traspaso.',
             'destination_warehouse_id.different' => 'El almacén de destino debe ser distinto al de origen.',
         ], [
-            'warehouse_id' => 'almacén', 'lines.*.supply_id' => 'supply', 'lines.*.quantity' => 'quantity', 'lines.*.cost' => 'costo unitario',
+            'warehouse_id' => 'almacén', 'lines.*.supply_id' => 'insumo', 'lines.*.quantity' => 'cantidad', 'lines.*.cost' => 'costo unitario',
         ]);
 
         $movement_type = $service->registrar($data, $request->user());

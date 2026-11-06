@@ -5,11 +5,11 @@
 @section('content')
     <form method="POST" action="{{ $user->exists ? route('users.update', $user) : route('users.store') }}" class="max-w-4xl space-y-4"
           x-data="{
-              empresa: @js((string) old('restaurant_id', $restaurantId)),
-              sucursal: @js((string) old('branch_id', $pointOfSale?->branch_id)),
-              almacen: @js((string) old('default_warehouse_id', $pointOfSale?->default_warehouse_id)),
-              sucursales: @js($branches),
-              almacenes: @js($warehouses),
+              restaurant: @js((string) old('restaurant_id', $restaurantId)),
+              branch: @js((string) old('branch_id', $pointOfSale?->branch_id)),
+              warehouse: @js((string) old('default_warehouse_id', $pointOfSale?->default_warehouse_id)),
+              branches: @js($branches),
+              warehouses: @js($warehouses),
           }">
         @csrf
         @if ($user->exists) @method('PUT') @endif
@@ -22,7 +22,7 @@
                 @else
                     <div class="sm:col-span-3">
                         <label class="label" for="restaurant_id">Restaurante <span class="text-brand-600">*</span></label>
-                        <select name="restaurant_id" id="restaurant_id" class="field" x-model="restaurant" @change="sucursal = ''; almacen = ''">
+                        <select name="restaurant_id" id="restaurant_id" class="field" x-model="restaurant" @change="branch = ''; warehouse = ''">
                             <option value="">Seleccione...</option>
                             @foreach ($restaurants as $id => $name)<option value="{{ $id }}">{{ $name }}</option>@endforeach
                         </select>
@@ -45,10 +45,10 @@
             <div class="grid gap-4 sm:grid-cols-2">
                 <div>
                     <label class="label" for="branch_id">Sucursal <span class="text-brand-600">*</span></label>
-                    <select name="branch_id" id="branch_id" class="field" x-model="branch" @change="almacen = ''">
+                    <select name="branch_id" id="branch_id" class="field" x-model="branch" @change="warehouse = ''">
                         <option value="">Seleccione...</option>
                         <template x-for="s in branches.filter(s => String(s.restaurant_id) === String(restaurant))" :key="s.id">
-                            <option :value="String(s.id)" x-text="s.name" :selected="String(s.id) === sucursal"></option>
+                            <option :value="String(s.id)" x-text="s.name" :selected="String(s.id) === branch"></option>
                         </template>
                     </select>
                 </div>
@@ -57,7 +57,7 @@
                     <select name="default_warehouse_id" id="default_warehouse_id" class="field" x-model="warehouse">
                         <option value="">Ninguno</option>
                         <template x-for="a in warehouses.filter(a => String(a.branch_id) === String(branch))" :key="a.id">
-                            <option :value="String(a.id)" x-text="a.name" :selected="String(a.id) === almacen"></option>
+                            <option :value="String(a.id)" x-text="a.name" :selected="String(a.id) === warehouse"></option>
                         </template>
                     </select>
                 </div>

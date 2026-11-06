@@ -118,7 +118,7 @@ class UserController extends Controller
         ], [
             'username.regex' => 'El código sólo puede tener letras, números, punto, guion y guion bajo (sin espacios).',
         ], [
-            'password' => 'contraseña', 'email' => 'correo', 'username' => 'código', 'role_id' => 'rol', 'branch_id' => 'branch', 'default_warehouse_id' => 'almacén',
+            'password' => 'contraseña', 'email' => 'correo', 'username' => 'código', 'role_id' => 'rol', 'branch_id' => 'sucursal', 'default_warehouse_id' => 'almacén',
         ]);
 
         $role = Role::findOrFail($data['role_id']);

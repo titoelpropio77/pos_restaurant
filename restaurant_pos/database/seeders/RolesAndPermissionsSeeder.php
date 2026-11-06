@@ -31,6 +31,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'pos.sales.view' => 'Ver el histórico de ventas',
             'pos.sales.print' => 'Reimprimir ventas',
             'pos.sales.void' => 'Anular ventas',
+            'pos.cash.open' => 'Abrir caja',
             'pos.cash.close' => 'Hacer el cierre de caja',
             'pos.expenses.view' => 'Ver ingresos y egresos',
             'pos.expenses.create' => 'Registrar ingresos y egresos',
@@ -50,6 +51,10 @@ class RolesAndPermissionsSeeder extends Seeder
         ],
         'Panel' => [
             'panel.access' => 'Entrar al panel del restaurante',
+        ],
+        'Caja' => [
+            'cash_sessions.view' => 'Ver cierres de caja',
+            'cash_sessions.close' => 'Cerrar cajas abiertas desde el panel',
         ],
         'Reportes' => [
             'reports.view' => 'Ver reportes',

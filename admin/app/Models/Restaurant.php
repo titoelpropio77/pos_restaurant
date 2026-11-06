@@ -17,7 +17,7 @@ class Restaurant extends Model
         'dining_room' => ['Mesas identificadas por nombre del cliente', false],
         'code_waiter' => ['Pedir código del mesero al abrir mesa', false],
         'waiters_without_code' => ['No validar el código del mesero', true],
-        'daily_close' => ['Botón de cierre diario de caja', true],
+        'daily_close' => ['Exigir apertura y cierre de caja', true],
         'billiards' => ['Modo billar (cobro por tiempo)', false],
         'percentage_restaurant' => ['Porcentaje del restaurante', false],
         'without_view_employee' => ['Ocultar vista de empleado', true],

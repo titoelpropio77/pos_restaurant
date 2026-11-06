@@ -19,6 +19,9 @@ function verifyError(error){
       }
       alertify.alert('<span style="font-weight: bold;    color: red;">ERROR</span>', error, function () {
         alertify.message('OK');
+        if ("DEBE ABRIR CAJA" === error) {
+          $('#ModalOpenCash').modal('show');
+        }
     });
       $('#loading').css('display', 'none');
       return true;
@@ -133,6 +136,7 @@ function changeBranch(idSuc){
     $.post(ROUTES.changeBranch, {idSuc:idSuc},function(res){
         var json = JSON.parse(res);
         if (verifyError(json.error)) {
+            $('#selectBranch').val(idBranch);
             return;
         }
         location.reload();
@@ -2549,25 +2553,6 @@ function removeDefaultFunction()
             //     }
         });
 
-        function listCashier(){
-            date = vf_sale;
-            $('#selectCashier').empty();
-            $('#selectCashier').append("<option value=''>");
-
-            $.get(ROUTES.cashiers, {date:date}, function (res) {
-                var json = JSON.parse(res);
-                if (verifyError(json.error)) {
-                    return;
-                }
-                for (var i = 0; i < json.result.length; i++) {
-                   $('#selectCashier').append("<option value='"+json.result[i].login+"'>"+json.result[i].login);
-
-               }
-
-           }).fail(function(xhr, ajaxOptions, thrownError){
-            failErrors(xhr, ajaxOptions, thrownError);  
-        });  
-       }
        restaurant=Array();
     function getRestaurant(){//obtiene los datos de la empresa
         $.get(ROUTES.authorization, {idBranch,idBranch },function(res){
@@ -2583,106 +2568,87 @@ function removeDefaultFunction()
 
 
 
-function closingCashRegister(){
-    var salesDaily=new Array();
-    cashier=$('#selectCashier').val();
-    entry="";
-    date = vf_sale;
-    shiftMan=$('#checkboxMorning');
-    shiftNight=$('#checkboxNight');
-    closing=$('#checkboxClosing');
-    if (cashier=="") {
-        alertify.alert('<span style="font-weight: bold;    color: red;">ERROR</span>', "DEBE SELECCIONAR UN CAJERO", function () {
+function openCashRegister(){
+    var amount=$('#inputOpeningAmount').val();
+    if (amount==="" || parseFloat(amount)<0) {
+        alertify.alert('<span style="font-weight: bold;    color: red;">ERROR</span>', "DEBE INDICAR EL MONTO INICIAL", function () {
         });
-        return; 
-    }
-    if (!closing.prop('checked')) {
-        alertify.alert('<span style="font-weight: bold;    color: red;">ERROR</span>', "DEBE SELECCIONAR CIERRE", function () {
-        });
-        return; 
-    }
-    if (shiftMan.prop('checked') && shiftNight.prop('checked')) {
-        entry="LOS2TURNOS";
-    }else{
-        if (shiftMan.prop('checked')) {
-            entry="TURNOMAÑANA";
-        }else{
-            if (shiftNight.prop('checked')) {
-                entry="TURNONOCHE";
-            }else{
-                alertify.alert('<span style="font-weight: bold;    color: red;">ERROR</span>', "DEBE SELECCIONAR UN TURNO O AMBOS", function () {
-                });
-                return; 
-            }
-        }
-    }
-
-    switch (entry){
-        case "LOS2TURNOS":
-        shift="MAÑANA Y NOCHE";
-
-        break;
-        case "TURNOMAÑANA":
-        shift="MAÑANA";
-
-        break;
-        case "TURNONOCHE":
-        shift="NOCHE";
-
-
-        break;
-        
-    }
-
-
-    $.post(ROUTES.closingCashRegister, {date:date,employee:cashier,entry:entry},function(res){
-      var json = $.parseJSON(res);
-      if (verifyError(json.error)) {
         return;
     }
-    salesDaily=json.result;
-    alertify.success('CIERRE DIARIO CORRECTAMENTE FECHA:'+date);
-    listClosingCashTotal(date,shift,cashier);
-    imprimirItemDeleted(date,shift,cashier);
-    $('#ModalDailyClose').modal('hide');
-
-
-           // paginatorProducto();
-       }).fail(function(xhr, ajaxOptions, thrownError){
-        failErrors(xhr, ajaxOptions, thrownError);  
-    });
-   }
-
-   function listClosingCashTotal(date,shift,cashier){
-
-    $.get(ROUTES.totalsClosing, {date:date,shift:shift,employee:cashier,entry:shift},function(res){
+    $.post(ROUTES.openCashRegister, {openingAmount:amount},function(res){
         var json = $.parseJSON(res);
         if (verifyError(json.error)) {
             return;
         }
-        if (json.result.length>0) {
-            credit=parseFloat(json.result[0].credit);
-            consumption=parseFloat(json.result[0].consumption);
-            qr=parseFloat(json.result[0].qr);
-            invoiced=parseFloat(json.result[0].invoiced);
-            voided=parseFloat(json.result[0].voided);
-            expenses=parseFloat(json.result[0].expenses);
-            login=parseFloat(json.result[0].login);
-            
-            cash_total=(invoiced - credit - consumption - qr -voided-expenses+login).toFixed(3);
-
-
-            $.post('http://localhost:8080/reportes/printClosing.php',{process:'listaTOTALCAJACIERRE',date:date,login:login,shift:shift,restaurant:restaurant,
-                listClosingCashTotal:json.result,balanceCashRegister:cash_total,sellDay:(parseFloat(json.result[0].invoiced)).toFixed(3)},function(res){
-                });
-
-        }else{
-
-        }
-        
+        $('#ModalOpenCash').modal('hide');
+        alertify.success('CAJA ABIERTA');
     }).fail(function(xhr, ajaxOptions, thrownError){
-        failErrors(xhr, ajaxOptions, thrownError);  
+        failErrors(xhr, ajaxOptions, thrownError);
     });
+}
+
+closingSessionId=0;
+closingDifference=0;
+function closingCashRegister(){
+    var counted=$('#inputCountedCash').val();
+    if (counted==="" || parseFloat(counted)<0) {
+        alertify.alert('<span style="font-weight: bold;    color: red;">ERROR</span>', "DEBE INDICAR EL EFECTIVO CONTADO", function () {
+        });
+        return;
+    }
+    $('#btnClosingCash').prop('disabled', true);
+    $.post(ROUTES.closingCashRegister, {countedCash:counted},function(res){
+        $('#btnClosingCash').prop('disabled', false);
+        var json = $.parseJSON(res);
+        if (verifyError(json.error)) {
+            return;
+        }
+        var totals=json.result[0];
+        closingSessionId=json.sessionId;
+        closingDifference=parseFloat(totals.difference);
+
+        $('#spanClosingExpected').text(totals.expected);
+        $('#spanClosingCounted').text(totals.counted);
+        $('#spanClosingDifference').text(totals.difference);
+        $('#divClosingNote').toggle(closingDifference!==0);
+        $('#ModalDailyClose').modal('hide');
+        $('#ModalClosingResult').modal('show');
+
+        printClosing(json.date,json.cashier,json.result);
+    }).fail(function(xhr, ajaxOptions, thrownError){
+        $('#btnClosingCash').prop('disabled', false);
+        failErrors(xhr, ajaxOptions, thrownError);
+    });
+}
+
+function finishClosing(){
+    if (closingDifference===0) {
+        location.reload();
+        return;
+    }
+    var note=$.trim($('#inputClosingNote').val());
+    if (note==="") {
+        alertify.alert('<span style="font-weight: bold;    color: red;">ERROR</span>', "DEBE EXPLICAR LA DIFERENCIA", function () {
+        });
+        return;
+    }
+    $.post(ROUTES.closingNote, {sessionId:closingSessionId,note:note},function(res){
+        var json = $.parseJSON(res);
+        if (verifyError(json.error)) {
+            return;
+        }
+        location.reload();
+    }).fail(function(xhr, ajaxOptions, thrownError){
+        failErrors(xhr, ajaxOptions, thrownError);
+    });
+}
+
+function printClosing(date,cashier,totals){
+    var shift="MAÑANA Y NOCHE";
+    $.post('http://localhost:8080/reportes/printClosing.php',{process:'listaTOTALCAJACIERRE',date:date,login:cashier,shift:shift,restaurant:restaurant,
+        listClosingCashTotal:totals,balanceCashRegister:totals[0].expected,sellDay:(parseFloat(totals[0].invoiced)).toFixed(3)},function(res){
+        });
+    imprimirItemDeleted(date,shift,cashier);
 }
 function imprimirItemDeleted(date,shift,cashier){//esta funcion imprime desde el historico
     $.get(ROUTES.itemsDeleted, {date:date,employee:cashier

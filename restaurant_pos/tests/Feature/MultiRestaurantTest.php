@@ -281,6 +281,7 @@ class MultiRestaurantTest extends TestCase
 
         $this->asOtherRestaurant();
 
+        $this->postJson(route('pos.cash_register.open'), ['openingAmount' => 0], ['X-Requested-With' => 'XMLHttpRequest'])->assertJson(['error' => '']);
         $response = $this->postJson(route('pos.sales.store'), [
             'idProduct' => [$product->id], 'quantity' => [2], 'price' => [10], 'subTotal' => [20], 'note' => [''], 'qr' => [''],
             'nameProduct' => ['PLATO SECRETO OTRO'], 'nameCustomer' => 'SIN NOMBRE', 'customerTaxId' => '', 'totalBs' => 20, 'totalInvoiceBs' => 20,

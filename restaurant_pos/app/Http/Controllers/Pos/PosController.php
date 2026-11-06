@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Pos;
 
 use App\Http\Controllers\Controller;
 use App\Models\UserLogin;
+use App\Services\CashRegister\CashSessions;
 use App\Support\PosContext;
 use App\Support\Tenant;
 use Illuminate\Support\Facades\Auth;
@@ -14,7 +15,7 @@ use Illuminate\View\View;
  */
 class PosController extends Controller
 {
-    public function index(PosContext $pos): View
+    public function index(PosContext $pos, CashSessions $cashSessions): View
     {
         $authenticated = Auth::check() && $pos->active();
 
@@ -23,6 +24,7 @@ class PosController extends Controller
             'user' => Auth::user(),
             'pos' => $pos,
             'options' => Tenant::options(),
+            'mustOpenCash' => $authenticated && $cashSessions->enabled() && ! $cashSessions->current(Auth::user()),
             'exchangeRateCurrent' => (float) UserLogin::latest('id')->value('exchange_rate'),
             'routes' => $this->routes(),
         ]);
@@ -54,9 +56,9 @@ class PosController extends Controller
             'saleItem' => 'pos.sales.detail',
             'voidSale' => 'pos.sales.void',
             'printSale' => 'pos.sales.print',
-            'cashiers' => 'pos.cash_register.cashiers',
-            'totalsClosing' => 'pos.cash_register.totals',
+            'openCashRegister' => 'pos.cash_register.open',
             'closingCashRegister' => 'pos.cash_register.closing',
+            'closingNote' => 'pos.cash_register.note',
             'expenses' => 'pos.expenses.index',
             'delivered' => 'pos.expenses.delivered',
             'saveExpense' => 'pos.expenses.store',

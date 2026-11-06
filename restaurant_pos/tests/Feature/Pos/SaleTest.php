@@ -166,13 +166,14 @@ class SaleTest extends PosTestCase
         $this->ajax('post', 'pos.sales.void', ['id' => $voided, 'status' => 'ANULAR']);
         $this->ajax('post', 'pos.expenses.store', ['typeExpense' => 'EGRESO', 'date' => today()->toDateString(), 'concept' => 'GAS', 'amount' => 5, 'shift' => 'NOCHE']);
 
-        $this->ajax('get', 'pos.cash_register.totals', ['date' => today()->toDateString(), 'shift' => 'MAÑANA Y NOCHE', 'employee' => ''])
+        $this->ajax('post', 'pos.cash_register.closing', ['countedCash' => 5])
             ->assertJsonPath('result.0.invoiced', '22.00')
             ->assertJsonPath('result.0.cash', '10.00')
             ->assertJsonPath('result.0.voided', '12.00')
-            ->assertJsonPath('result.0.expenses', '5.00');
+            ->assertJsonPath('result.0.expenses', '5.00')
+            ->assertJsonPath('result.0.expected', '5.00')
+            ->assertJsonPath('result.0.difference', '0.00');
 
-        $this->ajax('post', 'pos.cash_register.closing', ['date' => today()->toDateString(), 'employee' => 'CAJERO', 'entry' => 'LOS2TURNOS']);
         $this->assertSame(0, Sale::where('closed', '<>', 'S')->count());
         $this->assertSame(0, InvoiceSequence::first()->daily_order);
     }

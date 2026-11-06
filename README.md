@@ -131,7 +131,7 @@ de entorno (`restaurant_pos/config/pos.php`) sólo son el valor por defecto de u
 | `POS_SALON`               | `salon.txt`            | Mesas identificadas por nombre de cliente         |
 | `POS_MESEROS_SIN_CODIGO`  | `meserosc.txt`         | No pide código del mesero al abrir mesa           |
 | `POS_SIN_VISTA_EMPLEADO`  | `sinvistaempleado.txt` | Abre mesa sin pedir datos del mesero              |
-| `POS_CIERRE_DIARIO`       | `cierreDiario.txt`     | Botón de cierre diario de caja                    |
+| `POS_CIERRE_DIARIO`       | `cierreDiario.txt`     | Exige apertura y cierre de caja por punto de venta |
 | `POS_BILLAR`              | `billar.txt`           | Productos cobrados por tiempo                     |
 | `POS_IMPRESION_NUBE`      | `impresionnube.txt`    | Imprime vía el agente local `http://<ip>:8080`    |
 | `POS_CAMBIO_FECHA`        | `cambiofecha.txt`      | Permite cambiar la fecha de venta                 |

@@ -9,6 +9,7 @@ use App\Models\Branch;
 use App\Models\InvoiceSequence;
 use App\Models\Product;
 use App\Models\Sale;
+use App\Services\CashRegister\CashSessions;
 use App\Services\Sales\RegisterSale;
 use App\Support\PosContext;
 
@@ -19,6 +20,8 @@ class BillingYReportsTest extends AdminTestCase
         $pos = app(PosContext::class);
         $pos->start($this->admin->pointOfSale()->with('branch')->first(), 6.96);
         $product = Product::where('product_name', 'SILPANCHO')->first();
+        $cashSessions = app(CashSessions::class);
+        $cashSessions->current($this->admin) ?? $cashSessions->open($this->admin, 0, $pos->branchId());
 
         return app(RegisterSale::class)->run([
             'idProduct' => [$product->id], 'quantity' => [2], 'subTotal' => [70], 'nameProduct' => ['SILPANCHO'],

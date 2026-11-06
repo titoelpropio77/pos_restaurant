@@ -167,7 +167,7 @@
                     <input type="text" class="form-control datepicker" id="dateHistory" autocomplete="off">
                 </div>
                 <div class="pos-hist-actions">
-                    <button type="button" class="pos-hist-btn pos-hist-btn-closing" id="btnDailyClose" data-toggle="modal" data-target="#ModalDailyClose" onclick="listCashier()"><i class="fa fa-lock"></i> Cierre diario</button>
+                    @can('pos.cash.close')<button type="button" class="pos-hist-btn pos-hist-btn-closing" id="btnDailyClose" data-toggle="modal" data-target="#ModalDailyClose"><i class="fa fa-lock"></i> Cierre diario</button>@endcan
                     <button type="button" class="pos-hist-btn pos-hist-btn-volver" data-dismiss="modal"><i class="fa fa-arrow-left"></i> Volver</button>
                 </div>
             </div>
@@ -394,41 +394,69 @@
 
 </div>
 
-<div class="modal fade in" id="ModalDailyClose" role="dialog" data-backdrop="static">
-    <div class="modal-dialog ">    
+<div class="modal fade in" id="ModalOpenCash" role="dialog" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-sm">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title" style="text-align: center"><b>CIERRE DE CAJA</b></h4>
-
+                <h4 class="modal-title" style="text-align: center"><b>APERTURA DE CAJA</b></h4>
             </div>
-            <div class="modal-body" style=" overflow-x: auto;">
-             <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" id="">
-                <label for="inputEmail3" class="col-sm-3 control-label">CAJERO:</label>
-                <div class="col-sm-9">
-                    <select class="form-control" id="selectCashier" name="selectCashier">
-                        <option value="0"></option>
-                    </select>
-                </div>
-                <label for="inputEmail3" class="col-sm-3 control-label">TURNOS:</label>
-                <label><input type="checkbox" name="checkboxMorning" id="checkboxMorning" value="MAÑANA">MAÑANA</label>
-                <label><input type="checkbox" name="checkboxNight" id="checkboxNight" value="NOCHE">NOCHE</label><br><br>
-                <label><input type="checkbox" name="checkboxClosing" id="checkboxClosing">CIERRE</label>
-
-
+            <div class="modal-body">
+                @can('pos.cash.open')
+                    <label for="inputOpeningAmount">MONTO INICIAL (Bs):</label>
+                    <input type="number" step="0.01" min="0" class="form-control" id="inputOpeningAmount">
+                @else
+                    <p>SU USUARIO NO TIENE PERMISO PARA ABRIR CAJA.</p>
+                @endcan
+            </div>
+            <div class="modal-footer">
+                @can('pos.cash.open')
+                    <button type="button" class="btn btn-success" onclick="openCashRegister()">ABRIR CAJA</button>
+                @endcan
+                <button type="button" class="btn btn-danger" onclick="$('#fromLogin').submit()">SALIR</button>
             </div>
         </div>
-        <div class="modal-footer">
-            <button type="button" class="btn btn-success" onclick="closingCashRegister()">ACEPTAR</button>                        
-            <button type="button" class="btn btn-danger" data-dismiss="modal">CANCELAR</button>                        
-
-        </div>
-
     </div>
 </div>
 
+<div class="modal fade in" id="ModalDailyClose" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" style="text-align: center"><b>CIERRE DE CAJA</b></h4>
+            </div>
+            <div class="modal-body">
+                <label for="inputCountedCash">EFECTIVO CONTADO (Bs):</label>
+                <input type="number" step="0.01" min="0" class="form-control" id="inputCountedCash">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" id="btnClosingCash" onclick="closingCashRegister()">ACEPTAR</button>
+                <button type="button" class="btn btn-danger" data-dismiss="modal">CANCELAR</button>
+            </div>
+        </div>
+    </div>
 </div>
 
-
+<div class="modal fade in" id="ModalClosingResult" role="dialog" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" style="text-align: center"><b>CAJA CERRADA</b></h4>
+            </div>
+            <div class="modal-body">
+                <p>ESPERADO: <b id="spanClosingExpected"></b></p>
+                <p>CONTADO: <b id="spanClosingCounted"></b></p>
+                <p>DIFERENCIA: <b id="spanClosingDifference"></b></p>
+                <div id="divClosingNote" style="display: none">
+                    <label for="inputClosingNote">EXPLIQUE LA DIFERENCIA:</label>
+                    <textarea class="form-control" id="inputClosingNote" maxlength="500" rows="3"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" onclick="finishClosing()">ACEPTAR</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <div class="modal fade in" id="ModalSupplyProduct" role="dialog" data-backdrop="static">
     <div class="modal-dialog ">    

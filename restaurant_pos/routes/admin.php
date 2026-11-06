@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\BillingController;
+use App\Http\Controllers\Admin\CashSessionController;
 use App\Http\Controllers\Admin\CatalogController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\InventoryController;
@@ -54,6 +55,10 @@ Route::get('inventory/movements/{inventory}', [InventoryController::class, 'show
 // Ventas: detalle y anulación
 Route::get('sales/{sale}', [SaleController::class, 'show'])->middleware('permission:sales.view')->name('sales.show');
 Route::post('sales/{sale}/void', [SaleController::class, 'void'])->middleware('permission:sales.void')->name('sales.void');
+
+// Caja: cajas abiertas y cierres
+Route::get('cash-sessions', [CashSessionController::class, 'index'])->middleware('permission:cash_sessions.view')->name('cash_sessions.index');
+Route::post('cash-sessions/{cashSession}/close', [CashSessionController::class, 'close'])->middleware('permission:cash_sessions.close')->name('cash_sessions.close');
 
 // Reportes (exportar exige además reports.export: lo valida ReportController)
 Route::middleware('permission:reports.view')->group(function () {

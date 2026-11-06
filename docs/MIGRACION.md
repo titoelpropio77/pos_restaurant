@@ -96,8 +96,8 @@ contrato `{"error", "result"}` y los nombres de campo legacy (mayúsculas en ven
 | `REPORTEPHP/prueba5.php`                           | `POST /pos/ventas/impresion`         |
 | `venGralController` listarHistorico / anularVenta  | `GET /pos/ventas/historico`, `POST /pos/ventas/anular` |
 | `detalleVentaController` listarDadaVenta           | `GET /pos/ventas/detalle`            |
-| `venGralController` listarTOTALCAJACIERRE / archivarTotales | `GET /pos/caja/totales`, `POST /pos/caja/cierre` |
-| `usuarioController` listarUsuarioVenta             | `GET /pos/caja/cajeros`              |
+| `venGralController` listarTOTALCAJACIERRE / archivarTotales | `POST /pos/cash_register/closing` (cierre por sesión de caja) |
+| Sin equivalente legacy (apertura de caja)          | `POST /pos/cash_register/open`       |
 | `gastosController` listarEntregadoGAsto / listaroGastos / guardarGasto | `GET /pos/gastos/entregados`, `GET /pos/gastos`, `POST /pos/gastos` |
 | `mesasController` listarTodo / mesaProcesando / hablilitarMesaProcesando | `GET /pos/mesas`, `POST /pos/mesas/procesando`, `/pos/mesas/liberar-procesando` |
 | `productoMesaController` guardar / aumentarProductoMesa / listarDetalleMesa | `POST /pos/mesas/abrir`, `/pos/mesas/agregar`, `GET /pos/mesas/detalle` |

@@ -6,6 +6,9 @@
     <div class="no-print mb-4 flex flex-wrap gap-2">
         <a href="{{ url()->previous() }}" class="btn-secondary"><i class="fa fa-arrow-left"></i> Volver</a>
         <button onclick="window.print()" class="btn-secondary"><i class="fa fa-print"></i> Imprimir</button>
+        @if ($sale->cashSession?->status === \App\Models\CashSession::CLOSED)
+            <span class="ml-auto text-sm text-muted"><i class="fa fa-lock"></i> Caja cerrada: no se puede modificar</span>
+        @else
         @can('sales.void')
         <form method="POST" action="{{ route('admin.sales.void', $sale) }}" class="ml-auto"
               onsubmit="return confirm('{{ $sale->status === 'ACTIVE' ? '¿Anular esta venta?' : '¿Reactivar esta venta?' }}')">
@@ -17,6 +20,7 @@
             @endif
         </form>
         @endcan
+        @endif
     </div>
 
     <div class="grid gap-5 lg:grid-cols-3">

@@ -9,6 +9,7 @@ use App\Models\Product;
 use App\Models\Sale;
 use App\Models\User;
 use App\Services\Billing\ControlCode;
+use App\Services\CashRegister\CashSessions;
 use App\Services\StockMovement\SupplyConsumption;
 use App\Support\PosContext;
 use Illuminate\Support\Carbon;
@@ -26,6 +27,7 @@ class RegisterSale
         private InvoiceNumbering $numbering,
         private ControlCode $controlCode,
         private PosContext $pos,
+        private CashSessions $cashSessions,
     ) {}
 
     /**
@@ -46,6 +48,8 @@ class RegisterSale
         }
 
         return DB::transaction(function () use ($data, $user, $branchId, $date, $time, $tax_id, $totalBs, $authorization) {
+            $cashSessionId = $this->cashSessions->forMovement($user);
+
             $customer = $this->customer(
                 $data['nameCustomer'] ?? 'SIN NOMBRE',
                 $tax_id === '' ? '0' : $tax_id,
@@ -70,6 +74,7 @@ class RegisterSale
 
             $sale = Sale::create([
                 'branch_id' => $branchId,
+                'cash_session_id' => $cashSessionId,
                 'order_number' => $number['order_number'],
                 'sale_date' => $date,
                 'login' => $user->username,

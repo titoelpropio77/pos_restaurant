@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\BillingAuthorization;
 use App\Models\Branch;
 use App\Models\Staff;
+use App\Services\CashRegister\CashSessions;
 use App\Support\PosContext;
 use App\Support\PosResponse;
 use Illuminate\Http\JsonResponse;
@@ -25,13 +26,22 @@ class BranchController extends Controller
         return PosResponse::ok(PosResponse::rows(Branch::where('status', 'ACTIVE')->orderBy('name')->get()));
     }
 
-    public function change(Request $request): JsonResponse
+    public function change(Request $request, CashSessions $cashSessions): JsonResponse
     {
         if (! $this->pos->multiBranchSales()) {
             return PosResponse::error('EL USUARIO NO PUEDE VENDER EN OTRAS SUCURSALES');
         }
 
-        $this->pos->changeBranch(Branch::findOrFail($request->integer('idSuc')));
+        $branch = Branch::findOrFail($request->integer('idSuc'));
+
+        // Con la caja abierta no se cambia de sucursal: sus movimientos deben quedar en una sola
+        $session = $cashSessions->enabled() ? $cashSessions->current($request->user()) : null;
+
+        if ($session && $session->branch_id !== $branch->id) {
+            return PosResponse::error('CIERRE LA CAJA ANTES DE CAMBIAR DE SUCURSAL');
+        }
+
+        $this->pos->changeBranch($branch);
 
         return PosResponse::ok($this->pos->dailyOrder());
     }

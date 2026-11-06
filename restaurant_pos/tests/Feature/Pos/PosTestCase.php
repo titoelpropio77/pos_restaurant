@@ -23,12 +23,16 @@ abstract class PosTestCase extends TestCase
         $this->seed([BaseDataSeeder::class, DemoSeeder::class]);
     }
 
-    protected function log_in(string $email = 'cajero@mesatek.local', string $password = 'cajero'): static
+    protected function log_in(string $email = 'cajero@mesatek.local', string $password = 'cajero', bool $openCash = true): static
     {
         $this->post('/login', ['email' => $email, 'password' => $password, 'exchangeRate' => '6.96'])
             ->assertRedirect(route('pos.index'));
 
         $this->assertAuthenticatedAs(User::where('email', mb_strtolower($email))->first());
+
+        if ($openCash) {
+            $this->ajax('post', 'pos.cash_register.open', ['openingAmount' => 0])->assertJsonPath('error', '');
+        }
 
         return $this;
     }

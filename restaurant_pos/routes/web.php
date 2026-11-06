@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Pos\BranchController;
+use App\Http\Controllers\Pos\CashRegisterController;
 use App\Http\Controllers\Pos\CatalogController;
 use App\Http\Controllers\Pos\CustomerController;
 use App\Http\Controllers\Pos\ExpenseController;
@@ -54,9 +55,9 @@ Route::middleware(['pos', 'permission:pos.access'])->prefix('pos')->name('pos.')
     Route::get('sales/detail', [SaleController::class, 'detail'])->middleware('permission:pos.sales.view')->name('sales.detail');
     Route::post('sales/void', [SaleController::class, 'void'])->middleware('permission:pos.sales.void')->name('sales.void');
     Route::post('sales/print', [SaleController::class, 'print'])->middleware('permission:pos.sales.print')->name('sales.print');
-    Route::get('cash_register/cashiers', [SaleController::class, 'cashiers'])->middleware('permission:pos.cash.close')->name('cash_register.cashiers');
-    Route::get('cash_register/totals', [SaleController::class, 'totalsClosing'])->middleware('permission:pos.cash.close')->name('cash_register.totals');
-    Route::post('cash_register/closing', [SaleController::class, 'closing'])->middleware('permission:pos.cash.close')->name('cash_register.closing');
+    Route::post('cash_register/open', [CashRegisterController::class, 'open'])->middleware('permission:pos.cash.open')->name('cash_register.open');
+    Route::post('cash_register/closing', [CashRegisterController::class, 'closing'])->middleware('permission:pos.cash.close')->name('cash_register.closing');
+    Route::post('cash_register/closing/note', [CashRegisterController::class, 'note'])->middleware('permission:pos.cash.close')->name('cash_register.note');
 
     Route::get('expenses', [ExpenseController::class, 'index'])->middleware('permission:pos.expenses.view')->name('expenses.index');
     Route::get('expenses/delivered', [ExpenseController::class, 'delivered'])->middleware('permission:pos.expenses.view')->name('expenses.delivered');

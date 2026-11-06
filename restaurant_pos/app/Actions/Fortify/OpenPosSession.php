@@ -6,6 +6,7 @@ use App\Exceptions\PosException;
 use App\Http\Controllers\Pos\SessionController;
 use App\Models\User;
 use App\Models\UserLogin;
+use App\Services\CashRegister\CashSessions;
 use App\Support\PosContext;
 use App\Support\Tenant;
 use Closure;
@@ -19,7 +20,7 @@ use Illuminate\Support\Facades\DB;
  */
 class OpenPosSession
 {
-    public function __construct(private PosContext $pos) {}
+    public function __construct(private PosContext $pos, private CashSessions $cashSessions) {}
 
     public function handle(Request $request, Closure $next): mixed
     {
@@ -75,6 +76,13 @@ class OpenPosSession
             ]);
 
             $this->pos->start($pointOfSale, $exchangeRate);
+
+            // Si la caja quedó abierta en otra sucursal, se continúa en ella
+            $session = $this->cashSessions->enabled() ? $this->cashSessions->current($user) : null;
+
+            if ($session && $session->branch_id !== $pointOfSale->branch_id) {
+                $this->pos->changeBranch($session->branch);
+            }
         });
     }
 

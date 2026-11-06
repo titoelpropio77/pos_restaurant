@@ -369,6 +369,11 @@
     if (dailyClose == "nocierreDaily") {
         $('#btnDailyClose').css('display', 'none');
     }
+    @if ($mustOpenCash)
+        $(function () {
+            $('#ModalOpenCash').modal('show');
+        });
+    @endif
 </script>
 </body>
 </html>

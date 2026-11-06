@@ -19,6 +19,7 @@ class Sale extends Model
     protected $fillable = [
         'invoice_ref',
         'branch_id',
+        'cash_session_id',
         'order_number',
         'sale_date',
         'login',
@@ -57,6 +58,11 @@ class Sale extends Model
         'orders_ref',
         'delivered',
     ];
+
+    public function cashSession(): BelongsTo
+    {
+        return $this->belongsTo(CashSession::class);
+    }
 
     protected function casts(): array
     {

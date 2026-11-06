@@ -5,10 +5,9 @@ namespace App\Http\Controllers\Pos;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Pos\InvoiceRequest;
 use App\Models\BillingAuthorization;
-use App\Models\InvoiceSequence;
 use App\Models\Sale;
 use App\Models\SaleItem;
-use App\Services\CashRegister\CashCount;
+use App\Services\CashRegister\CashSessions;
 use App\Services\Sales\RegisterSale;
 use App\Support\PosContext;
 use App\Support\PosResponse;
@@ -18,7 +17,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Ventas del POS: cobro, histórico del día, anulación, datos de impresión y cierre de caja.
+ * Ventas del POS: cobro, histórico del día, anulación y datos de impresión.
  * Port de facturarController, venGralController, detalleVentaController y REPORTEPHP/prueba5.php.
  */
 class SaleController extends Controller
@@ -66,12 +65,13 @@ class SaleController extends Controller
     /**
      * Anula o reactiva una venta (botones ANULAR / ACTIVAR del histórico).
      */
-    public function void(Request $request): JsonResponse
+    public function void(Request $request, CashSessions $cashSessions): JsonResponse
     {
         $sale = Sale::where('branch_id', $this->pos->branchId())->findOrFail($request->integer('id'));
         $void = $request->input('status') === 'ANULAR';
 
-        DB::transaction(function () use ($sale, $void) {
+        DB::transaction(function () use ($sale, $void, $cashSessions) {
+            $cashSessions->ensureSaleEditable($sale);
             $sale->update(['status' => $void ? 'INACTIVE' : 'ACTIVE', 'voided' => $void ? 'S' : '']);
             $sale->details()->update(['voided' => $void ? 'S' : '']);
         });
@@ -111,71 +111,6 @@ class SaleController extends Controller
             'listDSale' => $detail,
             'control_qr' => $sale->control_code ?? '',
         ]);
-    }
-
-    /**
-     * Cajeros que registraron ventas en la fecha (para el cierre de caja).
-     */
-    public function cashiers(Request $request): JsonResponse
-    {
-        $logins = Sale::where('branch_id', $this->pos->branchId())
-            ->where('sale_date', Carbon::parse($request->input('date', today()))->toDateString())
-            ->distinct()
-            ->orderBy('login')
-            ->pluck('login')
-            ->map(fn ($login) => ['login' => $login]);
-
-        return PosResponse::ok($logins);
-    }
-
-    /**
-     * Totales del arqueo de caja: facturado, crédito, consumo, anulado, contado, gastos e ingresos.
-     */
-    public function totalsClosing(Request $request, CashCount $cash_count): JsonResponse
-    {
-        $date = Carbon::parse($request->input('date', today()))->toDateString();
-        $shift = (string) $request->input('shift', 'MAÑANA Y NOCHE');
-        $allBranches = (int) $request->input('multiSuc', 0) !== 0;
-
-        $totals = $cash_count->totals(
-            $date,
-            $date,
-            $allBranches ? null : $this->pos->branchId(),
-            in_array($shift, ['MAÑANA', 'NOCHE'], true) ? $shift : null,
-            $request->input('employee') ?: null,
-        );
-
-        return PosResponse::ok([array_map(fn ($value) => number_format($value, 2, '.', ''), $totals)]);
-    }
-
-    /**
-     * Cierre diario: marca como cerradas las ventas del turno/cajero y reinicia la orden del día.
-     */
-    public function closing(Request $request): JsonResponse
-    {
-        $date = Carbon::parse($request->input('date', today()))->toDateString();
-        $cashier = (string) $request->input('employee', '');
-        $shift = match ($request->input('entry')) {
-            'TURNOMAÑANA' => 'MAÑANA',
-            'TURNONOCHE' => 'NOCHE',
-            default => null,
-        };
-
-        DB::transaction(function () use ($date, $cashier, $shift) {
-            $sales = Sale::where('branch_id', $this->pos->branchId())
-                ->where('sale_date', $date)
-                ->when($shift, fn ($q) => $q->where('shift', $shift))
-                ->when($cashier !== '', fn ($q) => $q->where('login', $cashier));
-
-            SaleItem::whereIn('sale_id', (clone $sales)->select('id'))->update(['closed' => 'S']);
-            $sales->update(['closed' => 'S']);
-
-            InvoiceSequence::where('branch_id', $this->pos->branchId())->update(['daily_order' => 0]);
-        });
-
-        $this->pos->setDailyOrder(0);
-
-        return PosResponse::ok();
     }
 
     /**

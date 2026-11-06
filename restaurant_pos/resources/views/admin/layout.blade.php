@@ -15,6 +15,7 @@
         'General' => [
             ['admin.dashboard', 'fa-tachometer', 'Inicio', 'admin.dashboard', 'panel.access'],
             ['admin.reports.index', 'fa-bar-chart', 'Reportes', 'admin.reports.*', 'reports.view'],
+            ['admin.cash_sessions.index', 'fa-money', 'Caja', 'admin.cash_sessions.*', 'cash_sessions.view'],
         ],
         'Menú y ventas' => [
             ['admin.products.index', 'fa-cutlery', 'Productos', 'admin.products.*', 'products.view'],

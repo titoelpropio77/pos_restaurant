@@ -23,7 +23,7 @@ return [
         // meserosc.txt: no valida el código del mesero al abrir una mesa
         'waiters_without_code' => env('POS_MESEROS_SIN_CODIGO', true),
 
-        // cierreDiario.txt: muestra el botón de cierre diario de caja
+        // cierreDiario.txt: exige apertura y cierre de caja por punto de venta
         'daily_close' => env('POS_CIERRE_DIARIO', true),
 
         // billar.txt: habilita productos cobrados por tiempo (mesas de billar)

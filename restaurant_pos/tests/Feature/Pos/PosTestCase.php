@@ -2,8 +2,8 @@
 
 namespace Tests\Feature\Pos;
 
-use App\Models\Usuario;
-use Database\Seeders\DatosBaseSeeder;
+use App\Models\User;
+use Database\Seeders\BaseDataSeeder;
 use Database\Seeders\DemoSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Testing\TestResponse;
@@ -20,25 +20,25 @@ abstract class PosTestCase extends TestCase
     {
         parent::setUp();
 
-        $this->seed([DatosBaseSeeder::class, DemoSeeder::class]);
+        $this->seed([BaseDataSeeder::class, DemoSeeder::class]);
     }
 
-    protected function ingresar(string $usuario = 'cajero', string $password = 'cajero'): static
+    protected function log_in(string $email = 'cajero@mesatek.local', string $password = 'cajero'): static
     {
-        $this->post('/login', ['usuario' => $usuario, 'password' => $password, 'tipoCambio' => '6.96'])
+        $this->post('/login', ['email' => $email, 'password' => $password, 'exchangeRate' => '6.96'])
             ->assertRedirect(route('pos.index'));
 
-        $this->assertAuthenticatedAs(Usuario::where('usuario', mb_strtoupper($usuario))->first());
+        $this->assertAuthenticatedAs(User::where('email', mb_strtolower($email))->first());
 
         return $this;
     }
 
-    protected function ajax(string $metodo, string $ruta, array $datos = []): TestResponse
+    protected function ajax(string $method, string $route, array $data = []): TestResponse
     {
         $headers = ['X-Requested-With' => 'XMLHttpRequest'];
 
-        return $metodo === 'get'
-            ? $this->getJson(route($ruta, $datos), $headers)
-            : $this->postJson(route($ruta), $datos, $headers);
+        return $method === 'get'
+            ? $this->getJson(route($route, $data), $headers)
+            : $this->postJson(route($route), $data, $headers);
     }
 }

@@ -2,20 +2,19 @@
 
 namespace Database\Seeders;
 
-use App\Models\Almacen;
-use App\Models\Categoria;
-use App\Models\Insumo;
-use App\Models\InsumoAlmacen;
-use App\Models\InsumoProducto;
-use App\Models\Mesa;
-use App\Models\Personal;
-use App\Models\Producto;
-use App\Models\ProductoOpcion;
-use App\Models\ProductoSucursal;
-use App\Models\PuntoVenta;
-use App\Models\Rol;
-use App\Models\Sucursal;
-use App\Models\Usuario;
+use App\Models\Branch;
+use App\Models\BranchProduct;
+use App\Models\Category;
+use App\Models\DiningTable;
+use App\Models\PointOfSale;
+use App\Models\Product;
+use App\Models\ProductOption;
+use App\Models\RecipeItem;
+use App\Models\Staff;
+use App\Models\Supply;
+use App\Models\User;
+use App\Models\Warehouse;
+use App\Models\WarehouseStock;
 use Illuminate\Database\Seeder;
 
 /**
@@ -29,8 +28,8 @@ class DemoSeeder extends Seeder
         'POSTRES' => ['#5cb85c', [['HELADO', 12], ['FLAN', 10], ['TORTA DE CHOCOLATE', 14]]],
     ];
 
-    /** Fotos de ejemplo (public/abms1/imagenes/imagenboton); el POS muestra las rutas que empiezan con "abms1/". */
-    private const FOTOS = [
+    /** Fotos de ejemplo (public/legacy/images/buttons); el POS muestra las rutas que empiezan con "legacy/". */
+    private const PHOTOS = [
         'PIQUE MACHO' => 'pique-macho.jpg',
         'SILPANCHO' => 'silpancho.jpg',
         'MILANESA DE POLLO' => 'milanesa-de-pollo.jpg',
@@ -40,38 +39,38 @@ class DemoSeeder extends Seeder
 
     public function run(): void
     {
-        $sucursal = Sucursal::where('nombre', 'CASA MATRIZ')->firstOrFail();
-        $almacen = Almacen::where('sucursal_id', $sucursal->id)->firstOrFail();
+        $branch = Branch::where('name', 'CASA MATRIZ')->firstOrFail();
+        $warehouse = Warehouse::where('branch_id', $branch->id)->firstOrFail();
 
-        $orden = 0;
-        foreach (self::MENU as $nombreCategoria => [$color, $productos]) {
-            $categoria = Categoria::firstOrCreate(['nom_grupo' => $nombreCategoria], ['colores' => $color, 'orden' => ++$orden]);
-            $categoria->update(['cod_grupo' => (string) $categoria->id, 'grupo' => $categoria->id]);
+        $order_number = 0;
+        foreach (self::MENU as $nameCategory => [$color, $products]) {
+            $category = Category::firstOrCreate(['group_name' => $nameCategory], ['color' => $color, 'order_number' => ++$order_number]);
+            $category->update(['group_code' => (string) $category->id, 'category_group' => $category->id]);
 
-            foreach ($productos as [$nombre, $precio]) {
-                $producto = Producto::firstOrCreate(['nom_prod' => $nombre], [
-                    'pre_venta' => $precio,
-                    'cantidad' => 1,
-                    'unid' => 1,
-                    'categoria_id' => $categoria->id,
-                    'colores' => $color,
-                    'presa' => '',
-                    'imgnormal' => isset(self::FOTOS[$nombre]) ? 'abms1/imagenes/imagenboton/'.self::FOTOS[$nombre] : '',
-                    'tiempo' => '',
+            foreach ($products as [$name, $price]) {
+                $product = Product::firstOrCreate(['product_name' => $name], [
+                    'sale_price' => $price,
+                    'quantity' => 1,
+                    'unit_factor' => 1,
+                    'category_id' => $category->id,
+                    'color' => $color,
+                    'options_mode' => '',
+                    'image_path' => isset(self::PHOTOS[$name]) ? 'legacy/images/buttons/'.self::PHOTOS[$name] : '',
+                    'timed' => '',
                 ]);
-                $producto->update(['cod_prod' => $producto->id]);
+                $product->update(['product_code' => $product->id]);
 
-                ProductoSucursal::firstOrCreate(
-                    ['producto_id' => $producto->id, 'sucursal_id' => $sucursal->id],
+                BranchProduct::firstOrCreate(
+                    ['product_id' => $product->id, 'branch_id' => $branch->id],
                     array_merge(
-                        array_fill_keys(['lun', 'mar', 'mier', 'jue', 'vie', 'sab', 'dom'], 'x'),
+                        array_fill_keys(['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'], 'x'),
                         [
-                            'categoria_id' => $categoria->id,
-                            'precio_venta' => $precio,
-                            'precio_venta_normal' => $precio,
-                            'hora_inicio' => '00:00',
-                            'hora_fin' => '00:00',
-                            'impcoc' => $nombreCategoria === 'PLATOS' ? 'x' : '',
+                            'category_id' => $category->id,
+                            'sale_price' => $price,
+                            'regular_price' => $price,
+                            'start_time' => '00:00',
+                            'end_time' => '00:00',
+                            'print_kitchen' => $nameCategory === 'PLATOS' ? 'x' : '',
                         ],
                     ),
                 );
@@ -79,41 +78,55 @@ class DemoSeeder extends Seeder
         }
 
         // Opciones del pique: al venderlo el POS ofrece estas sugerencias (campo "presa" con valor)
-        $pique = Producto::where('nom_prod', 'PIQUE MACHO')->first();
-        $pique->update(['presa' => 'OPCIONES']);
-        foreach (['SIN PICANTE', 'EXTRA PAPAS', 'TÉRMINO MEDIO'] as $opcion) {
-            ProductoOpcion::firstOrCreate(['producto_id' => $pique->id, 'opcion' => $opcion], ['nom_prod' => $pique->nom_prod]);
+        $pique = Product::where('product_name', 'PIQUE MACHO')->first();
+        $pique->update(['options_mode' => 'OPCIONES']);
+        foreach (['SIN PICANTE', 'EXTRA PAPAS', 'TÉRMINO MEDIO'] as $option_name) {
+            ProductOption::firstOrCreate(['product_id' => $pique->id, 'option_name' => $option_name], ['product_name' => $pique->product_name]);
         }
 
         // Receta: la limonada consume limón y azúcar del almacén
-        $limon = Insumo::firstOrCreate(['nom_insumo' => 'LIMÓN'], ['medida' => 'UND', 'stock_min' => 20]);
-        $azucar = Insumo::firstOrCreate(['nom_insumo' => 'AZÚCAR'], ['medida' => 'GR', 'stock_min' => 1000]);
-        foreach ([[$limon, 100], [$azucar, 5000]] as [$insumo, $stock]) {
-            $insumo->update(['cod_ins' => (string) $insumo->id]);
-            InsumoAlmacen::firstOrCreate(['insumo_id' => $insumo->id, 'almacen_id' => $almacen->id], ['stock_actual' => $stock]);
+        $limon = Supply::firstOrCreate(['supply_name' => 'LIMÓN'], ['measure' => 'UND', 'min_stock' => 20]);
+        $azucar = Supply::firstOrCreate(['supply_name' => 'AZÚCAR'], ['measure' => 'GR', 'min_stock' => 1000]);
+        foreach ([[$limon, 100], [$azucar, 5000]] as [$supply, $stock]) {
+            $supply->update(['supply_code' => (string) $supply->id]);
+            WarehouseStock::firstOrCreate(['supply_id' => $supply->id, 'warehouse_id' => $warehouse->id], ['current_stock' => $stock]);
         }
-        $limonada = Producto::where('nom_prod', 'LIMONADA')->first();
-        InsumoProducto::firstOrCreate(['producto_id' => $limonada->id, 'insumo_id' => $limon->id], ['cantidad' => 2]);
-        InsumoProducto::firstOrCreate(['producto_id' => $limonada->id, 'insumo_id' => $azucar->id], ['cantidad' => 30]);
+        $limonada = Product::where('product_name', 'LIMONADA')->first();
+        RecipeItem::firstOrCreate(['product_id' => $limonada->id, 'supply_id' => $limon->id], ['quantity' => 2]);
+        RecipeItem::firstOrCreate(['product_id' => $limonada->id, 'supply_id' => $azucar->id], ['quantity' => 30]);
 
         for ($i = 1; $i <= 12; $i++) {
-            Mesa::firstOrCreate(['sucursal_id' => $sucursal->id, 'nro_mesa' => (string) $i], ['orden' => $i]);
+            DiningTable::firstOrCreate(['branch_id' => $branch->id, 'table_number' => (string) $i], ['order_number' => $i]);
         }
 
-        foreach ([['JUAN PÉREZ', '#f0ad4e', '1111'], ['MARÍA QUISPE', '#5bc0de', '2222']] as [$nombre, $color, $codigo]) {
-            Personal::firstOrCreate(['nom_empl' => $nombre], ['cargo' => 'MESERO', 'coloremp' => $color, 'codigo' => $codigo, 'sucursal_id' => $sucursal->id]);
+        foreach ([['JUAN PÉREZ', '#f0ad4e', '1111'], ['MARÍA QUISPE', '#5bc0de', '2222']] as [$name, $color, $code]) {
+            Staff::firstOrCreate(['staff_name' => $name], ['position' => 'MESERO', 'staff_color' => $color, 'code' => $code, 'branch_id' => $branch->id]);
         }
 
-        $cajero = Usuario::firstOrCreate(['usuario' => 'CAJERO'], [
-            'nombres' => 'CAJERO DE PRUEBA',
-            'cargo' => 'CAJERO',
-            'password' => 'CAJERO',
-            'nivel' => Usuario::NIVEL_CAJERO,
-            'rol_id' => Rol::delRestaurante()->where('nombre', 'Cajero')->value('id'),
+        $cashier = User::firstOrCreate(['email' => 'cajero@mesatek.local'], [
+            'username' => 'cajero',
+            'name' => 'CAJERO DE PRUEBA',
+            'position' => 'CAJERO',
+            'password' => 'cajero',
         ]);
-        PuntoVenta::firstOrCreate(['usuario_id' => $cajero->id], [
-            'sucursal_id' => $sucursal->id,
-            'almacen_por_defecto_id' => $almacen->id,
+        $cashier->syncRoles('cashier');
+        PointOfSale::firstOrCreate(['user_id' => $cashier->id], [
+            'branch_id' => $branch->id,
+            'default_warehouse_id' => $warehouse->id,
+        ]);
+
+        $partner = User::firstOrCreate(['email' => 'partner@mesatek.local'], [
+            'username' => 'partner',
+            'name' => 'PARTNER DE PRUEBA',
+            'position' => 'PARTNER',
+            'password' => 'partner',
+        ]);
+        $partner->syncRoles('partner');
+        PointOfSale::firstOrCreate(['user_id' => $partner->id], [
+            'branch_id' => $branch->id,
+            'default_warehouse_id' => $warehouse->id,
+            'multi_branch_sales' => true,
+            'start_date' => today(),
         ]);
     }
 }

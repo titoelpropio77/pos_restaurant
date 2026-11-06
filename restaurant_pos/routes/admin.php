@@ -1,13 +1,13 @@
 <?php
 
-use App\Http\Controllers\Admin\CatalogoController;
+use App\Http\Controllers\Admin\BillingController;
+use App\Http\Controllers\Admin\CatalogController;
 use App\Http\Controllers\Admin\DashboardController;
-use App\Http\Controllers\Admin\FacturacionController;
-use App\Http\Controllers\Admin\InventarioController;
-use App\Http\Controllers\Admin\ProductoController;
-use App\Http\Controllers\Admin\ReporteController;
-use App\Http\Controllers\Admin\UsuarioController;
-use App\Http\Controllers\Admin\VentaController;
+use App\Http\Controllers\Admin\InventoryController;
+use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\Admin\SaleController;
+use App\Http\Controllers\Admin\UserController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -19,46 +19,52 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', DashboardController::class)->name('dashboard');
 
 // Productos (precios por sucursal, opciones, receta y grupos de reporte)
-Route::resource('productos', ProductoController::class)->except('show')->middleware('permiso:panel.productos');
+Route::get('products', [ProductController::class, 'index'])->middleware('permission:products.view')->name('products.index');
+Route::get('products/create', [ProductController::class, 'create'])->middleware('permission:products.create')->name('products.create');
+Route::post('products', [ProductController::class, 'store'])->middleware('permission:products.create')->name('products.store');
+Route::get('products/{product}/edit', [ProductController::class, 'edit'])->middleware('permission:products.update')->name('products.edit');
+Route::put('products/{product}', [ProductController::class, 'update'])->middleware('permission:products.update')->name('products.update');
+Route::delete('products/{product}', [ProductController::class, 'destroy'])->middleware('permission:products.delete')->name('products.destroy');
 
-// Usuarios del sistema y su punto de venta
-Route::resource('usuarios', UsuarioController::class)->except('show')->middleware('permiso:panel.usuarios');
+// Usuarios del restaurante y su punto de venta
+Route::get('users', [UserController::class, 'index'])->middleware('permission:users.view')->name('users.index');
+Route::get('users/create', [UserController::class, 'create'])->middleware('permission:users.create')->name('users.create');
+Route::post('users', [UserController::class, 'store'])->middleware('permission:users.create')->name('users.store');
+Route::get('users/{user}/edit', [UserController::class, 'edit'])->middleware('permission:users.update')->name('users.edit');
+Route::put('users/{user}', [UserController::class, 'update'])->middleware('permission:users.update')->name('users.update');
+Route::delete('users/{user}', [UserController::class, 'destroy'])->middleware('permission:users.delete')->name('users.destroy');
 
 // Sucursales: dosificación SIN y numeración de facturas
-Route::middleware('permiso:panel.facturacion')->group(function () {
-    Route::get('facturacion', [FacturacionController::class, 'index'])->name('facturacion.index');
-    Route::get('facturacion/{sucursal}', [FacturacionController::class, 'edit'])->name('facturacion.edit');
-    Route::put('facturacion/{sucursal}', [FacturacionController::class, 'update'])->name('facturacion.update');
-});
+Route::get('billing', [BillingController::class, 'index'])->middleware('permission:billing.view')->name('billing.index');
+Route::get('billing/{branch}', [BillingController::class, 'edit'])->middleware('permission:billing.update')->name('billing.edit');
+Route::put('billing/{branch}', [BillingController::class, 'update'])->middleware('permission:billing.update')->name('billing.update');
 
 // Inventario
-Route::middleware('permiso:panel.inventario')->group(function () {
-    Route::get('inventario/stock', [InventarioController::class, 'stock'])->name('inventario.stock');
-    Route::get('inventario/movimientos', [InventarioController::class, 'movimientos'])->name('inventario.movimientos');
-    Route::get('inventario/movimientos/nuevo', [InventarioController::class, 'create'])->name('inventario.create');
-    Route::post('inventario/movimientos', [InventarioController::class, 'store'])->name('inventario.store');
-    Route::get('inventario/movimientos/{inventario}', [InventarioController::class, 'show'])->name('inventario.show');
-    Route::get('inventario/kardex', [InventarioController::class, 'kardex'])->name('inventario.kardex');
+Route::middleware('permission:inventory.view')->group(function () {
+    Route::get('inventory/stock', [InventoryController::class, 'stock'])->name('inventory.stock');
+    Route::get('inventory/movements', [InventoryController::class, 'movements'])->name('inventory.movements');
+    Route::get('inventory/kardex', [InventoryController::class, 'kardex'])->name('inventory.kardex');
 });
+Route::middleware('permission:inventory.create')->group(function () {
+    Route::get('inventory/movements/create', [InventoryController::class, 'create'])->name('inventory.create');
+    Route::post('inventory/movements', [InventoryController::class, 'store'])->name('inventory.store');
+});
+Route::get('inventory/movements/{inventory}', [InventoryController::class, 'show'])->middleware('permission:inventory.view')->name('inventory.show');
 
 // Ventas: detalle y anulación
-Route::middleware('permiso:panel.ventas')->group(function () {
-    Route::get('ventas/{venta}', [VentaController::class, 'show'])->name('ventas.show');
-    Route::post('ventas/{venta}/anular', [VentaController::class, 'anular'])->name('ventas.anular');
+Route::get('sales/{sale}', [SaleController::class, 'show'])->middleware('permission:sales.view')->name('sales.show');
+Route::post('sales/{sale}/void', [SaleController::class, 'void'])->middleware('permission:sales.void')->name('sales.void');
+
+// Reportes (exportar exige además reports.export: lo valida ReportController)
+Route::middleware('permission:reports.view')->group(function () {
+    Route::get('reports', [ReportController::class, 'index'])->name('reports.index');
+    Route::get('reports/{report}', [ReportController::class, 'show'])->name('reports.show');
 });
 
-// Reportes
-Route::middleware('permiso:panel.reportes')->group(function () {
-    Route::get('reportes', [ReporteController::class, 'index'])->name('reportes.index');
-    Route::get('reportes/{reporte}', [ReporteController::class, 'show'])->name('reportes.show');
-});
-
-// Catálogos simples (categorías, mesas, personal, clientes, insumos, almacenes...)
-Route::middleware('permiso:panel.catalogos')->group(function () {
-    Route::get('catalogos/{catalogo}', [CatalogoController::class, 'index'])->name('catalogos.index');
-    Route::get('catalogos/{catalogo}/nuevo', [CatalogoController::class, 'create'])->name('catalogos.create');
-    Route::post('catalogos/{catalogo}', [CatalogoController::class, 'store'])->name('catalogos.store');
-    Route::get('catalogos/{catalogo}/{id}/editar', [CatalogoController::class, 'edit'])->name('catalogos.edit');
-    Route::put('catalogos/{catalogo}/{id}', [CatalogoController::class, 'update'])->name('catalogos.update');
-    Route::delete('catalogos/{catalogo}/{id}', [CatalogoController::class, 'destroy'])->name('catalogos.destroy');
-});
+// Catálogos simples: CatalogController exige catalogs.{catalogo}.{accion}
+Route::get('catalogs/{catalog}', [CatalogController::class, 'index'])->name('catalogs.index');
+Route::get('catalogs/{catalog}/create', [CatalogController::class, 'create'])->name('catalogs.create');
+Route::post('catalogs/{catalog}', [CatalogController::class, 'store'])->name('catalogs.store');
+Route::get('catalogs/{catalog}/{id}/edit', [CatalogController::class, 'edit'])->name('catalogs.edit');
+Route::put('catalogs/{catalog}/{id}', [CatalogController::class, 'update'])->name('catalogs.update');
+Route::delete('catalogs/{catalog}/{id}', [CatalogController::class, 'destroy'])->name('catalogs.destroy');

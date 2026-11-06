@@ -8,23 +8,25 @@
 /*
  * Marca Mesatek: azul noche #14213D, ámbar #E8961C, crema #FAF7F2, gris pizarra #4A5468.
  * Mismos tokens que la pantalla del POS (public/css/pos/pos.css). Las fuentes se cargan
- * en public/css/fuentes.css.
- * Sobre ámbar (marca-500) el texto va en azul noche (text-panel): el blanco no se lee.
- * Para texto ámbar sobre claro usar marca-600 o marca-700.
+ * en public/css/fonts.css.
+ * Sobre ámbar (brand-500) el texto va en azul noche (text-panel): el blanco no se lee.
+ * Para texto ámbar sobre claro usar brand-600 o brand-700.
  */
 @theme {
     --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
     --font-display: 'Space Grotesk', var(--font-sans);
-    --color-marca-50: #fdf6ea;
-    --color-marca-100: #fbe7c8;
-    --color-marca-400: #f2ab42;
-    --color-marca-500: #e8961c;
-    --color-marca-600: #a8660c;
-    --color-marca-700: #87500a;
-    --color-tinta: #4a5468;
-    --color-tenue: #626c80;
-    --color-borde: #e7e0d4;
-    --color-fondo: #faf7f2;
+    --color-brand-50: #fdf6ea;
+    --color-brand-100: #fbe7c8;
+    --color-brand-400: #f2ab42;
+    --color-brand-500: #e8961c;
+    --color-brand-600: #a8660c;
+    --color-brand-700: #87500a;
+    --color-ink: #4a5468;
+    --color-muted: #626c80;
+    --color-line: #e7e0d4;
+    /* Borde de los campos: --color-line se pierde sobre blanco */
+    --color-field-line: #a39a88;
+    --color-base: #faf7f2;
     --color-panel: #14213d;
     --color-panel-2: #24345a;
     /* Grises claros de Tailwind en tono cálido, para que combinen con el crema */
@@ -37,35 +39,35 @@
     @apply inline-flex items-center justify-center gap-2 rounded-lg px-3.5 py-2 text-sm font-semibold transition disabled:opacity-50 cursor-pointer;
 }
 
-@utility btn-primario {
-    @apply btn bg-marca-500 text-panel shadow-sm hover:bg-marca-400;
+@utility btn-primary {
+    @apply btn bg-brand-500 text-panel shadow-sm hover:bg-brand-400;
 }
 
-@utility btn-secundario {
-    @apply btn border border-borde bg-white text-tinta hover:bg-slate-50;
+@utility btn-secondary {
+    @apply btn border border-line bg-white text-ink hover:bg-slate-50;
 }
 
-@utility btn-peligro {
+@utility btn-danger {
     @apply btn border border-red-200 bg-white text-red-600 hover:bg-red-50;
 }
 
-@utility btn-chico {
+@utility btn-small {
     @apply px-2.5 py-1.5 text-xs;
 }
 
-@utility tarjeta {
+@utility card {
     @apply rounded-xl bg-white shadow-sm ring-1 ring-black/5;
 }
 
-@utility campo {
-    @apply block w-full rounded-lg border border-borde bg-white px-3 py-2 text-sm text-tinta shadow-xs outline-none transition focus:border-marca-500 focus:ring-2 focus:ring-marca-100;
+@utility field {
+    @apply block w-full rounded-lg border border-field-line bg-white px-3 py-2 text-sm text-ink shadow-xs outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100;
 }
 
-@utility etiqueta {
-    @apply mb-1 block text-xs font-semibold text-tenue;
+@utility label {
+    @apply mb-1 block text-xs font-semibold text-muted;
 }
 
-@utility tabla {
+@utility data-table {
     @apply w-full text-sm;
 }
 
@@ -73,7 +75,7 @@
     @apply text-right tabular-nums whitespace-nowrap;
 }
 
-@utility insignia {
+@utility badge {
     @apply inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold;
 }
 
@@ -82,16 +84,16 @@
 }
 
 @layer components {
-    .tabla thead th { @apply sticky top-0 bg-slate-50 px-3 py-2.5 text-left text-xs font-semibold tracking-wide text-tenue uppercase; }
-    .tabla tbody td { @apply border-t border-borde px-3 py-2.5 align-middle; }
-    .tabla tbody tr:hover { @apply bg-marca-50/40; }
-    .tabla tfoot td { @apply border-t-2 border-borde bg-slate-50 px-3 py-2.5 font-bold; }
+    .data-table thead th { @apply sticky top-0 bg-slate-50 px-3 py-2.5 text-left text-xs font-semibold tracking-wide text-muted uppercase; }
+    .data-table tbody td { @apply border-t border-line px-3 py-2.5 align-middle; }
+    .data-table tbody tr:hover { @apply bg-brand-50/40; }
+    .data-table tfoot td { @apply border-t-2 border-line bg-slate-50 px-3 py-2.5 font-bold; }
 }
 
 [x-cloak] { display: none !important; }
 
 @media print {
-    .no-imprimir { display: none !important; }
+    .no-print { display: none !important; }
     body { background: white; }
-    .tarjeta { box-shadow: none; }
+    .card { box-shadow: none; }
 }

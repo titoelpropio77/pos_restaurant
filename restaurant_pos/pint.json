@@ -1,6 +1,6 @@
 {
     "preset": "laravel",
     "exclude": [
-        "public/abms1"
+        "public/legacy"
     ]
 }

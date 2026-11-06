@@ -1,6 +1,8 @@
+name: mesatek
+
 # Monolito Mesatek: dos aplicaciones Laravel sobre la misma base de datos.
 #   app + web             restaurant_pos: POS y panel de cada restaurante   → puerto 8600
-#   admin + admin_web     administrador: administración del sistema         → puerto 8601
+#   admin + admin_web     admin: administración del sistema         → puerto 8601
 # restaurant_pos es el único dueño del esquema: sólo él ejecuta migraciones.
 services:
   app:
@@ -10,7 +12,7 @@ services:
       args:
         UID: ${UID:-1000}
         GID: ${GID:-1000}
-    container_name: posgourmet_app
+    container_name: mesatek_app
     restart: unless-stopped
     volumes:
       - ./restaurant_pos:/var/www/html
@@ -18,9 +20,9 @@ services:
       DB_CONNECTION: pgsql
       DB_HOST: db
       DB_PORT: 5432
-      DB_DATABASE: ${DB_DATABASE:-posgourmet}
-      DB_USERNAME: ${DB_USERNAME:-posgourmet}
-      DB_PASSWORD: ${DB_PASSWORD:-posgourmet}
+      DB_DATABASE: ${DB_DATABASE:-mesatek}
+      DB_USERNAME: ${DB_USERNAME:-mesatek}
+      DB_PASSWORD: ${DB_PASSWORD:-mesatek}
       AUTO_MIGRATE: ${AUTO_MIGRATE:-true}
     depends_on:
       db:
@@ -28,7 +30,7 @@ services:
 
   web:
     image: nginx:1.27-alpine
-    container_name: posgourmet_web
+    container_name: mesatek_web
     restart: unless-stopped
     ports:
       - "8600:80"
@@ -45,21 +47,21 @@ services:
       args:
         UID: ${UID:-1000}
         GID: ${GID:-1000}
-    container_name: posgourmet_admin
+    container_name: mesatek_admin
     restart: unless-stopped
     volumes:
-      - ./administrador:/var/www/html
-      # Las pruebas del administrador recrean el esquema con las migraciones del POS
-      - ./restaurant_pos/database/migrations:/var/www/migraciones:ro
+      - ./admin:/var/www/html
+      # Las pruebas del admin recrean el esquema con las migraciones del POS
+      - ./restaurant_pos/database/migrations:/var/www/migrations:ro
     environment:
       DB_CONNECTION: pgsql
       DB_HOST: db
       DB_PORT: 5432
-      DB_DATABASE: ${DB_DATABASE:-posgourmet}
-      DB_USERNAME: ${DB_USERNAME:-posgourmet}
-      DB_PASSWORD: ${DB_PASSWORD:-posgourmet}
+      DB_DATABASE: ${DB_DATABASE:-mesatek}
+      DB_USERNAME: ${DB_USERNAME:-mesatek}
+      DB_PASSWORD: ${DB_PASSWORD:-mesatek}
       AUTO_MIGRATE: "false"
-      AUTO_SEMBRAR: "true"
+      AUTO_SEED: "true"
     depends_on:
       db:
         condition: service_healthy
@@ -68,26 +70,26 @@ services:
 
   admin_web:
     image: nginx:1.27-alpine
-    container_name: posgourmet_admin_web
+    container_name: mesatek_admin_web
     restart: unless-stopped
     ports:
       - "8601:80"
     volumes:
-      - ./administrador:/var/www/html:ro
+      - ./admin:/var/www/html:ro
       - ./docker/nginx/administrador.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
       - admin
 
   db:
     image: postgres:17-alpine
-    container_name: posgourmet_db
+    container_name: mesatek_db
     restart: unless-stopped
     ports:
       - "5436:5432"
     environment:
-      POSTGRES_DB: ${DB_DATABASE:-posgourmet}
-      POSTGRES_USER: ${DB_USERNAME:-posgourmet}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-posgourmet}
+      POSTGRES_DB: ${DB_DATABASE:-mesatek}
+      POSTGRES_USER: ${DB_USERNAME:-mesatek}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-mesatek}
       TZ: America/La_Paz
       PGTZ: America/La_Paz
     volumes:
@@ -104,7 +106,7 @@ services:
   #   docker compose exec app php artisan legacy:importar
   legacy-db:
     image: mysql:8.0
-    container_name: posgourmet_legacy_db
+    container_name: mesatek_legacy_db
     profiles: ["legacy"]
     command: --default-authentication-plugin=mysql_native_password --sql-mode=""
     environment:

@@ -1,5 +1,9 @@
 # Migración de POS Gourmet: PHP/MySQL → Laravel/PostgreSQL
 
+> **Nota:** este documento describe la migración original y usa los nombres en español de entonces
+> (`ventas`, `sucursales`, `/pos/ventas`...). El esquema actual está en inglés: ver `README.md` y las migraciones
+> de `restaurant_pos/database/migrations/`.
+
 ## 1. Ingeniería inversa del sistema original
 
 **Punto de entrada:** `index.php` (pantalla del POS) incluye `modalLogin.php`, `modalGourmet.php`

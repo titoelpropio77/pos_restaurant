@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Pos;
 
 use App\Http\Controllers\Controller;
-use App\Models\IngresoUsuario;
-use App\Support\PosContexto;
-use App\Support\Restaurante;
+use App\Models\UserLogin;
+use App\Support\PosContext;
+use App\Support\Tenant;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
@@ -14,74 +14,75 @@ use Illuminate\View\View;
  */
 class PosController extends Controller
 {
-    public function index(PosContexto $pos): View
+    public function index(PosContext $pos): View
     {
-        $autenticado = Auth::check() && $pos->activo();
+        $authenticated = Auth::check() && $pos->active();
 
         return view('pos.index', [
-            'autenticado' => $autenticado,
-            'usuario' => Auth::user(),
+            'authenticated' => $authenticated,
+            'user' => Auth::user(),
             'pos' => $pos,
-            'opciones' => Restaurante::opciones(),
-            'tipoCambioActual' => (float) IngresoUsuario::latest('id')->value('cam_of'),
-            'rutas' => $this->rutas(),
+            'options' => Tenant::options(),
+            'exchangeRateCurrent' => (float) UserLogin::latest('id')->value('exchange_rate'),
+            'routes' => $this->routes(),
         ]);
     }
 
     /**
-     * URLs que usa posgourmet.js, indexadas por el nombre con que las referencia el script.
+     * URLs que usa pos.js, indexadas por el nombre con que las referencia el script.
      */
-    private function rutas(): array
+    private function routes(): array
     {
-        return array_map(fn (string $nombre) => route($nombre, absolute: false), [
-            'autorizarTipoCambio' => 'pos.tipo-cambio.autorizar',
-            'sucursales' => 'pos.sucursales.index',
-            'cambiarSucursal' => 'pos.sucursales.cambiar',
-            'impresionSucursal' => 'pos.sucursal.impresion',
-            'dosificacion' => 'pos.sucursal.dosificacion',
-            'verificarDosificacion' => 'pos.sucursal.dosificacion.verificar',
-            'meseros' => 'pos.meseros.index',
-            'categorias' => 'pos.categorias.index',
-            'productos' => 'pos.productos.index',
-            'buscarProducto' => 'pos.productos.buscar',
-            'buscarCodigoBarra' => 'pos.productos.codigo-barra',
-            'opcionesProducto' => 'pos.productos.opciones',
-            'insumosProducto' => 'pos.productos.insumos',
-            'desactivarProducto' => 'pos.productos.desactivar',
-            'moverProducto' => 'pos.productos.mover',
-            'facturar' => 'pos.ventas.store',
-            'historico' => 'pos.ventas.historico',
-            'detalleVenta' => 'pos.ventas.detalle',
-            'anularVenta' => 'pos.ventas.anular',
-            'impresionVenta' => 'pos.ventas.impresion',
-            'cajeros' => 'pos.caja.cajeros',
-            'totalesCierre' => 'pos.caja.totales',
-            'cierreCaja' => 'pos.caja.cierre',
-            'gastos' => 'pos.gastos.index',
-            'entregados' => 'pos.gastos.entregados',
-            'guardarGasto' => 'pos.gastos.store',
-            'mesas' => 'pos.mesas.index',
-            'mesasProcesando' => 'pos.mesas.procesando',
-            'mesasLiberarProcesando' => 'pos.mesas.liberar-procesando',
-            'mesaDetalle' => 'pos.mesas.detalle',
-            'abrirMesa' => 'pos.mesas.abrir',
-            'agregarMesa' => 'pos.mesas.agregar',
-            'mesaCobrada' => 'pos.mesas.cobrada',
-            'traspasarMesa' => 'pos.mesas.traspasar',
-            'anularMesa' => 'pos.mesas.anular',
-            'eliminarItemMesa' => 'pos.mesas.eliminar-item',
-            'eliminarCantidadMesa' => 'pos.mesas.eliminar-cantidad',
-            'pararTiempo' => 'pos.mesas.parar-tiempo',
-            'itemsEliminados' => 'pos.mesas.items-eliminados',
-            'clientesSugerenciasNombre' => 'pos.clientes.sugerencias.nombre',
-            'clientesSugerenciasNit' => 'pos.clientes.sugerencias.nit',
-            'clientesSugerenciasDomicilio' => 'pos.clientes.sugerencias.domicilio',
-            'clientesBuscarNombre' => 'pos.clientes.buscar-nombre',
-            'clientesBuscarNit' => 'pos.clientes.buscar-nit',
-            'clientesActualizar' => 'pos.clientes.update',
-            'clientesEliminar' => 'pos.clientes.destroy',
-            'tarjetas' => 'pos.tarjetas.buscar',
-            'consumoTarjeta' => 'pos.tarjetas.consumir',
+        return array_map(fn (string $name) => route($name, absolute: false), [
+            'authorizeExchangeRate' => 'pos.exchange-rate.authorize',
+            'branches' => 'pos.branches.index',
+            'changeBranch' => 'pos.branches.change',
+            'printBranch' => 'pos.branch.print',
+            'authorization' => 'pos.branch.authorization',
+            'verifyAuthorization' => 'pos.branch.authorization.verify',
+            'waiters' => 'pos.waiters.index',
+            'categories' => 'pos.categories.index',
+            'products' => 'pos.products.index',
+            'searchProduct' => 'pos.products.search',
+            'searchBarcode' => 'pos.products.code-bar',
+            'optionsProduct' => 'pos.products.options',
+            'suppliesProduct' => 'pos.products.supplies',
+            'deactivateProduct' => 'pos.products.deactivate',
+            'moveProduct' => 'pos.products.move',
+            'invoice' => 'pos.sales.store',
+            'history' => 'pos.sales.history',
+            'saleItem' => 'pos.sales.detail',
+            'voidSale' => 'pos.sales.void',
+            'printSale' => 'pos.sales.print',
+            'cashiers' => 'pos.cash_register.cashiers',
+            'totalsClosing' => 'pos.cash_register.totals',
+            'closingCashRegister' => 'pos.cash_register.closing',
+            'expenses' => 'pos.expenses.index',
+            'delivered' => 'pos.expenses.delivered',
+            'saveExpense' => 'pos.expenses.store',
+            'diningTables' => 'pos.diningTables.index',
+            'tablesProcessing' => 'pos.diningTables.processing',
+            'tablesReleaseProcessing' => 'pos.diningTables.release-processing',
+            'tableDetail' => 'pos.diningTables.detail',
+            'openTable' => 'pos.diningTables.open',
+            'addTable' => 'pos.diningTables.add',
+            'tablePaid' => 'pos.diningTables.paid',
+            'transferTable' => 'pos.diningTables.transfer',
+            'voidTable' => 'pos.diningTables.void',
+            'deleteItemTable' => 'pos.diningTables.delete-item',
+            'deleteQuantityTable' => 'pos.diningTables.delete-quantity',
+            'stopTime' => 'pos.diningTables.stop-timed',
+            'itemsDeleted' => 'pos.diningTables.items-deleted',
+            'customersSuggestionsName' => 'pos.customers.suggestions.name',
+            'customersSuggestionsTaxId' => 'pos.customers.suggestions.tax_id',
+            'customersSuggestionsDelivery' => 'pos.customers.suggestions.delivery',
+            'searchCustomersByName' => 'pos.customers.search-name',
+            'searchCustomersByTaxId' => 'pos.customers.search-tax_id',
+            'customersStore' => 'pos.customers.store',
+            'customersUpdate' => 'pos.customers.update',
+            'customersDelete' => 'pos.customers.destroy',
+            'cards' => 'pos.cards.search',
+            'consumptionCard' => 'pos.cards.consume',
             'logout' => 'logout',
         ]);
     }

@@ -8,7 +8,7 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        $this->call(DatosBaseSeeder::class);
+        $this->call(BaseDataSeeder::class);
 
         if (app()->environment('local', 'testing')) {
             $this->call(DemoSeeder::class);

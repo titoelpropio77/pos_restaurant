@@ -69,7 +69,7 @@ return [
             'driver' => 'mysql',
             'host' => env('LEGACY_DB_HOST', 'legacy-db'),
             'port' => env('LEGACY_DB_PORT', '3306'),
-            'database' => env('LEGACY_DB_DATABASE', 'posgourmet'),
+            'database' => env('LEGACY_DB_DATABASE', 'legacy'),
             'username' => env('LEGACY_DB_USERNAME', 'root'),
             'password' => env('LEGACY_DB_PASSWORD', 'root'),
             'charset' => env('LEGACY_DB_CHARSET', 'utf8mb4'),

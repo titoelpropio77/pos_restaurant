@@ -2,8 +2,8 @@
 
 namespace App\Providers;
 
-use App\Auth\UsuarioProvider;
-use App\Support\Restaurante;
+use App\Auth\UserProvider;
+use App\Support\Tenant;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ServiceProvider;
 
@@ -14,7 +14,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->scoped(Restaurante::class);
+        $this->app->scoped(Tenant::class);
     }
 
     /**
@@ -22,6 +22,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Auth::provider('usuarios', fn ($app, array $config) => new UsuarioProvider($app['hash'], $config['model']));
+        Auth::provider('users', fn ($app, array $config) => new UserProvider($app['hash'], $config['model']));
     }
 }

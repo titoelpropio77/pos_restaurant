@@ -15,7 +15,7 @@ RUN apk add --no-cache \
     && apk del .build-deps
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
-COPY docker/php/php.ini /usr/local/etc/php/conf.d/zz-posgourmet.ini
+COPY docker/php/php.ini /usr/local/etc/php/conf.d/zz-mesatek.ini
 COPY docker/php/entrypoint.sh /usr/local/bin/entrypoint.sh
 
 # El usuario www-data usa el mismo UID/GID del host para evitar problemas de permisos con el volumen

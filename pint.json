@@ -1,7 +1,0 @@
-{
-    "preset": "laravel",
-    "exclude": [
-        "posgourmet",
-        "public/abms1"
-    ]
-}

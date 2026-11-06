@@ -165,6 +165,20 @@ class RestaurantTest extends AdminTestCase
         $this->get(route('audit.index'))->assertOk()->assertSee('LA PACEÑA');
     }
 
+    public function test_the_form_sends_and_shows_the_options_of_pos(): void
+    {
+        $restaurant = $this->create();
+        $restaurant->update(['options' => ['daily_close' => true]]);
+
+        $response = $this->get(route('restaurants.edit', $restaurant))->assertOk();
+
+        foreach (array_keys(Restaurant::OPTIONS) as $key) {
+            $response->assertSee('name="options['.$key.']"', false);
+        }
+
+        $response->assertSee('id="fieldoptions_daily_close_" name="options[daily_close]" value="1" checked', false);
+    }
+
     public function test_saves_the_options_of_pos_by_restaurant(): void
     {
         $restaurant = $this->create();

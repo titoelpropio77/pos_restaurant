@@ -49,7 +49,7 @@
             <h2 class="mb-2 font-bold">Opciones del POS</h2>
             <div class="grid gap-x-4 sm:grid-cols-2">
                 @foreach (\App\Models\Restaurant::OPTIONS as $key => [$text])
-                    <x-field :name="'opciones['.$key.']'" :label="$text" type="checkbox" :value="$restaurant->options[$key] ?? false" />
+                    <x-field :name="'options['.$key.']'" :label="$text" type="checkbox" :value="$restaurant->options[$key] ?? false" />
                 @endforeach
             </div>
         </section>

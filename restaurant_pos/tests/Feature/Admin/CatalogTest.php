@@ -2,8 +2,10 @@
 
 namespace Tests\Feature\Admin;
 
+use App\Admin\Catalogs;
 use App\Models\Branch;
 use App\Models\Category;
+use App\Models\Customer;
 use App\Models\DiningTable;
 use App\Models\InvoiceSequence;
 
@@ -43,6 +45,42 @@ class CatalogTest extends AdminTestCase
 
         $branch = Branch::where('name', 'SUCURSAL NORTE')->firstOrFail();
         $this->assertNotNull(InvoiceSequence::forSales($branch->id));
+    }
+
+    public function test_creates_a_customer(): void
+    {
+        $this->post(route('admin.catalogs.store', 'customers'), ['customer_name' => 'ANA ROJAS', 'customer_tax_id' => '123456'])
+            ->assertRedirect(route('admin.catalogs.index', 'customers'))
+            ->assertSessionHasNoErrors();
+
+        $this->assertSame('123456', Customer::where('customer_name', 'ANA ROJAS')->firstOrFail()->customer_tax_id);
+    }
+
+    public function test_texts_agree_with_the_gender_of_the_catalog(): void
+    {
+        $this->get(route('admin.catalogs.index', 'customers'))->assertSee('Nuevo cliente');
+        $this->get(route('admin.catalogs.create', 'customers'))->assertSee('Nuevo cliente');
+        $this->get(route('admin.catalogs.index', 'dining_tables'))->assertSee('Nueva mesa');
+        $this->get(route('admin.catalogs.create', 'dining_tables'))->assertSee('Nueva mesa');
+
+        $this->post(route('admin.catalogs.store', 'branches'), ['name' => 'SUCURSAL SUR', 'status' => 'ACTIVE'])
+            ->assertSessionHas('ok', 'Sucursal registrada correctamente.');
+        $this->post(route('admin.catalogs.store', 'customers'), ['customer_name' => 'ANA ROJAS'])
+            ->assertSessionHas('ok', 'Cliente registrado correctamente.');
+    }
+
+    public function test_all_catalogs_render_their_screens(): void
+    {
+        foreach (array_keys(Catalogs::all()) as $slug) {
+            $this->get(route('admin.catalogs.index', $slug))->assertOk();
+            $this->get(route('admin.catalogs.create', $slug))->assertOk();
+
+            $def = Catalogs::get($slug);
+            $record = $def['model']::query()->first();
+            if ($record) {
+                $this->get(route('admin.catalogs.edit', [$slug, $record->id]))->assertOk();
+            }
+        }
     }
 
     public function test_catalog_missing_gives_404(): void

@@ -1,6 +1,6 @@
 @extends('admin.layout')
 
-@section('title', ($record->exists ? 'Editar ' : 'Nuevo ').$def['singular'])
+@section('title', ($record->exists ? 'Editar' : \App\Admin\Catalogs::agree($def, 'Nuevo')).' '.$def['singular'])
 
 @section('content')
     <form method="POST" class="card max-w-4xl p-6"
@@ -11,10 +11,10 @@
         <div class="grid gap-4 sm:grid-cols-4">
             @foreach ($def['fields'] as $name => $field)
                 @php $options = isset($field[3]) ? (is_callable($field[3]) ? $field[3]() : $field[3]) : []; @endphp
-                <x-admin.campo :nombre="$nombre" :etiqueta="$campo[0]" :tipo="$campo[1]"
-                               :valor="$registro->{$nombre} instanceof \DateTimeInterface ? $registro->{$nombre}->format('Y-m-d') : $registro->{$nombre}"
-                               :opciones="$opciones" :required="str_contains($campo[2], 'required')"
-                               :vacio="$campo['vacio'] ?? null" :ayuda="$campo['ayuda'] ?? null"
+                <x-admin.field :name="$name" :label="$field[0]" :type="$field[1]"
+                               :value="$record->{$name} instanceof \DateTimeInterface ? $record->{$name}->format('Y-m-d') : $record->{$name}"
+                               :options="$options" :required="str_contains($field[2], 'required')"
+                               :empty="$field['empty'] ?? null" :help="$field['help'] ?? null"
                                @class([$field['width'] ?? 'sm:col-span-1']) />
             @endforeach
         </div>

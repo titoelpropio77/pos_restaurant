@@ -68,7 +68,7 @@ class CatalogController extends Controller
         $this->after($def, $record, true);
 
         return redirect()->route('admin.catalogs.index', $catalog)
-            ->with('ok', ucfirst($def['singular']).' registrado correctamente.');
+            ->with('ok', ucfirst($def['singular']).' '.Catalogs::agree($def, 'registrado').' correctamente.');
     }
 
     public function edit(string $catalog, int $id): View
@@ -90,7 +90,7 @@ class CatalogController extends Controller
         $this->after($def, $record, false);
 
         return redirect()->route('admin.catalogs.index', $catalog)
-            ->with('ok', ucfirst($def['singular']).' actualizado correctamente.');
+            ->with('ok', ucfirst($def['singular']).' '.Catalogs::agree($def, 'actualizado').' correctamente.');
     }
 
     public function destroy(string $catalog, int $id): RedirectResponse
@@ -104,7 +104,7 @@ class CatalogController extends Controller
             $this->before($def, $record, $data);
             $record->update($data);
 
-            return back()->with('ok', ucfirst($def['singular']).' dado de baja.');
+            return back()->with('ok', ucfirst($def['singular']).' '.Catalogs::agree($def, 'dado').' de baja.');
         }
 
         try {
@@ -113,7 +113,7 @@ class CatalogController extends Controller
             return back()->with('error', 'No se puede eliminar: '.$def['singular'].' tiene registros relacionados.');
         }
 
-        return back()->with('ok', ucfirst($def['singular']).' eliminado.');
+        return back()->with('ok', ucfirst($def['singular']).' '.Catalogs::agree($def, 'eliminado').'.');
     }
 
     private function authorizeCatalog(string $catalog, string $action): void

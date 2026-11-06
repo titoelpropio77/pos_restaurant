@@ -25,6 +25,7 @@ use Illuminate\Database\Eloquent\Model;
  *
  * Cada catálogo indica:
  *  - modelo, titulo, singular, icono, descripcion
+ *  - feminine:  true si singular es femenino (ver Catalogs::agree)
  *  - buscar:    columnas para la búsqueda de texto
  *  - orden:     [columna, dirección]
  *  - sucursal:  true si se filtra por sucursal (columna sucursal_id)
@@ -47,6 +48,7 @@ class Catalogs
                 'model' => Category::class,
                 'title' => 'Categorías del menú',
                 'singular' => 'categoría',
+                'feminine' => true,
                 'icon' => 'fa-th-large',
                 'description' => 'Botones del menú del POS. El orden define la posición en pantalla.',
                 'search' => ['group_name'],
@@ -72,7 +74,7 @@ class Catalogs
             'report_groups' => [
                 'model' => ReportGroup::class,
                 'title' => 'Grupos de reporte',
-                'singular' => 'category_group',
+                'singular' => 'grupo',
                 'icon' => 'fa-object-group',
                 'description' => 'Agrupan productos para contar unidades en los reportes (p. ej. presas de pollo vendidas).',
                 'search' => ['group_name', 'group_code'],
@@ -124,7 +126,8 @@ class Catalogs
             'dining_tables' => [
                 'model' => DiningTable::class,
                 'title' => 'Mesas',
-                'singular' => 'diningTable',
+                'singular' => 'mesa',
+                'feminine' => true,
                 'icon' => 'fa-square-o',
                 'description' => 'Mesas del salón de cada sucursal, en el orden en que aparecen en el POS.',
                 'search' => ['table_number'],
@@ -150,7 +153,8 @@ class Catalogs
             'staff' => [
                 'model' => Staff::class,
                 'title' => 'Meseros y personal',
-                'singular' => 'person',
+                'singular' => 'persona',
+                'feminine' => true,
                 'icon' => 'fa-id-badge',
                 'description' => 'Personal que atiende mesas. El color identifica las mesas de cada mesero y el código se pide al abrir una mesa.',
                 'search' => ['staff_name', 'staff_id_number', 'position'],
@@ -182,7 +186,7 @@ class Catalogs
             'supplies' => [
                 'model' => Supply::class,
                 'title' => 'Insumos',
-                'singular' => 'supply',
+                'singular' => 'insumo',
                 'icon' => 'fa-lemon-o',
                 'description' => 'Materia prima que descuentan las recetas de los productos. El stock se gestiona en Movimientos de inventario.',
                 'search' => ['supply_name', 'supply_code'],
@@ -232,7 +236,7 @@ class Catalogs
             'suppliers' => [
                 'model' => Supplier::class,
                 'title' => 'Proveedores',
-                'singular' => 'supplier',
+                'singular' => 'proveedor',
                 'icon' => 'fa-truck',
                 'search' => ['name', 'contact_name', 'phone'],
                 'order_number' => ['name', 'asc'],
@@ -260,7 +264,8 @@ class Catalogs
             'units' => [
                 'model' => Unit::class,
                 'title' => 'Unidades de medida',
-                'singular' => 'unit',
+                'singular' => 'unidad',
+                'feminine' => true,
                 'icon' => 'fa-balance-scale',
                 'search' => ['name', 'abbreviation'],
                 'order_number' => ['name', 'asc'],
@@ -280,7 +285,7 @@ class Catalogs
             'reasons' => [
                 'model' => MovementReason::class,
                 'title' => 'Motivos de movimiento',
-                'singular' => 'reason',
+                'singular' => 'motivo',
                 'icon' => 'fa-tags',
                 'description' => 'Clasifican los movimientos de inventario (compra, merma, traspaso...). VENTA lo usa el sistema al descontar recetas.',
                 'search' => ['name'],
@@ -299,7 +304,8 @@ class Catalogs
             'branches' => [
                 'model' => Branch::class,
                 'title' => 'Sucursales',
-                'singular' => 'branch',
+                'singular' => 'sucursal',
+                'feminine' => true,
                 'icon' => 'fa-building-o',
                 'description' => 'Locales del restaurante. Cada sucursal necesita una dosificación (Facturación SIN) para poder vender.',
                 'search' => ['name', 'address'],
@@ -333,6 +339,14 @@ class Catalogs
                 },
             ],
         ];
+    }
+
+    /**
+     * Concuerda una palabra terminada en "o" con el género del catálogo: Nuevo/Nueva, registrado/registrada.
+     */
+    public static function agree(array $def, string $word): string
+    {
+        return ($def['feminine'] ?? false) ? substr($word, 0, -1).'a' : $word;
     }
 
     public static function get(string $slug): array

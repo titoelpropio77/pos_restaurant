@@ -27,7 +27,7 @@
         @can("catalogs.{$def['slug']}.create")
         <a href="{{ route('admin.catalogs.create', [$def['slug'], 'branch' => request('branch')]) }}" class="btn-primary ml-auto">
         @endcan
-            <i class="fa fa-plus"></i> Nuevo {{ $def['singular'] }}
+            <i class="fa fa-plus"></i> {{ \App\Admin\Catalogs::agree($def, 'Nuevo') }} {{ $def['singular'] }}
         </a>
     </form>
 

@@ -1,8 +1,3 @@
-.git
-vendor
-node_modules
-posgourmet
-storage/logs
-storage/framework/cache
-storage/framework/sessions
-storage/framework/views
+# El contexto de build sólo necesita docker/: el código se monta por volumen
+*
+!docker

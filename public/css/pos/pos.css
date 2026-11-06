@@ -1,26 +1,34 @@
 /*
- * POS Gourmet — interfaz del punto de venta.
+ * Mesatek — interfaz del punto de venta.
  * Se apoya en Bootstrap 3 (modales y pestañas que usa posgourmet.js) y sobrescribe
  * los estilos en línea que el JS heredado genera para categorías, productos y detalle.
  */
 
 :root {
-    --pos-bg: #eef1f5;
+    /* Marca: azul noche #14213D, ámbar #E8961C, crema #FAF7F2, gris pizarra #4A5468 */
+    --pos-font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    --pos-font-display: "Space Grotesk", var(--pos-font);
+    --pos-bg: #faf7f2;
     --pos-surface: #ffffff;
-    --pos-surface-2: #f6f7f9;
-    --pos-border: #dde2e8;
-    --pos-text: #1f2933;
-    --pos-muted: #6b7785;
-    --pos-topbar: #1d2633;
-    --pos-topbar-2: #2a3545;
-    --pos-accent: #f2711c;
-    --pos-accent-dark: #d65d0e;
-    --pos-accent-soft: #fff1e6;
+    --pos-surface-2: #f5f0e7;
+    --pos-border: #e7e0d4;
+    --pos-ink: #14213d;
+    --pos-text: #4a5468;
+    --pos-muted: #626c80;
+    --pos-topbar: #14213d;
+    --pos-topbar-2: #24345a;
+    --pos-topbar-3: #31436f;
+    --pos-topbar-muted: #a9b3c6;
+    /* Sobre ámbar el texto va en azul noche: el blanco no alcanza contraste legible */
+    --pos-accent: #e8961c;
+    --pos-accent-hover: #f2ab42;
+    --pos-accent-dark: #a8660c;
+    --pos-accent-soft: #fdf1de;
     --pos-success: #1f9d55;
     --pos-danger: #d64545;
     --pos-radius: 12px;
     --pos-radius-sm: 8px;
-    --pos-shadow: 0 1px 2px rgba(16, 24, 40, .06), 0 1px 3px rgba(16, 24, 40, .08);
+    --pos-shadow: 0 1px 2px rgba(20, 33, 61, .06), 0 1px 3px rgba(20, 33, 61, .08);
     --pos-ticket-width: 430px;
     --pos-topbar-height: 60px;
 }
@@ -33,13 +41,14 @@ body.pos-body {
     overflow: hidden;
     background: var(--pos-bg);
     color: var(--pos-text);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-family: var(--pos-font);
     font-size: 14px;
 }
 
 body.pos-body-login {
     min-height: 100vh;
-    background: linear-gradient(135deg, var(--pos-topbar) 0%, #34465e 100%);
+    font-family: var(--pos-font);
+    background: linear-gradient(135deg, var(--pos-topbar) 0%, #2a3d68 100%);
 }
 
 body.pos-body-login .pos-app { display: none; }
@@ -76,13 +85,11 @@ body.pos-body-login .pos-app { display: none; }
 .pos-brand {
     display: flex;
     align-items: center;
-    gap: 8px;
-    font-size: 18px;
-    white-space: nowrap;
+    flex-shrink: 0;
 }
 
-.pos-brand img { height: 32px; width: 32px; object-fit: contain; }
-.pos-brand strong { color: var(--pos-accent); margin-left: 2px; }
+.pos-brand img { display: block; height: 40px; width: auto; }
+.pos-brand-icono { display: none !important; }
 
 .pos-search {
     position: relative;
@@ -95,7 +102,7 @@ body.pos-body-login .pos-app { display: none; }
     left: 12px;
     top: 50%;
     transform: translateY(-50%);
-    color: #9aa5b1;
+    color: var(--pos-topbar-muted);
 }
 
 .pos-search input {
@@ -110,8 +117,8 @@ body.pos-body-login .pos-app { display: none; }
     transition: border-color .15s, background .15s;
 }
 
-.pos-search input::placeholder { color: #9aa5b1; }
-.pos-search input:focus { border-color: var(--pos-accent); background: #111823; }
+.pos-search input::placeholder { color: var(--pos-topbar-muted); }
+.pos-search input:focus { border-color: var(--pos-accent); background: #0d1729; }
 
 .pos-chips {
     display: flex;
@@ -138,7 +145,7 @@ body.pos-body-login .pos-app { display: none; }
 }
 
 .pos-topbar .fa { color: var(--pos-accent); }
-.pos-search .fa { color: #9aa5b1; }
+.pos-search .fa { color: var(--pos-topbar-muted); }
 .pos-icon-btn .fa { color: inherit; }
 
 .pos-chip-select select {
@@ -167,7 +174,7 @@ body.pos-body-login .pos-app { display: none; }
     font-variant-numeric: tabular-nums;
 }
 
-.pos-clock #h3FechaActual { color: #9aa5b1; font-size: 11px; }
+.pos-clock #h3FechaActual { color: var(--pos-topbar-muted); font-size: 11px; }
 
 .pos-topbar-actions { display: flex; gap: 6px; margin: 0; }
 
@@ -185,7 +192,7 @@ body.pos-body-login .pos-app { display: none; }
     cursor: pointer;
 }
 
-.pos-icon-btn:hover { background: #3b4a5f; color: #fff; text-decoration: none; }
+.pos-icon-btn:hover { background: var(--pos-topbar-3); color: #fff; text-decoration: none; }
 .pos-icon-btn.disabled { opacity: .45; cursor: not-allowed; }
 .pos-icon-btn-danger:hover { background: var(--pos-danger); }
 
@@ -244,7 +251,8 @@ body.pos-body-login .pos-app { display: none; }
     padding: 1px 7px;
     border-radius: 10px;
     background: var(--pos-accent);
-    color: #fff;
+    color: var(--pos-ink);
+    font-weight: 700;
     font-size: 11px;
     text-align: center;
 }
@@ -311,7 +319,7 @@ body.pos-body-login .pos-app { display: none; }
 .pos-categorias > button.clickMenuGrupo {
     background: var(--pos-accent) !important;
     border-color: var(--pos-accent) !important;
-    color: #fff !important;
+    color: var(--pos-ink) !important;
 }
 
 /* ---------- Productos (botones generados por el JS) ---------- */
@@ -376,7 +384,7 @@ body.pos-body-login .pos-app { display: none; }
     text-shadow: none;
 }
 
-.pos-productos > button.btnMenu:hover { box-shadow: 0 6px 14px rgba(16, 24, 40, .18) !important; }
+.pos-productos > button.btnMenu:hover { box-shadow: 0 6px 14px rgba(20, 33, 61, .18) !important; }
 .pos-productos > button.btnMenu:active { transform: scale(.97); }
 
 /* Productos con foto: el JS heredado genera <a><div><div.btn><img><span>; se rediseña como tarjeta */
@@ -391,7 +399,7 @@ body.pos-body-login .pos-app { display: none; }
     transition: transform .08s ease, box-shadow .15s ease;
 }
 
-.pos-productos > a.btnMenu:hover { box-shadow: 0 6px 14px rgba(16, 24, 40, .18); }
+.pos-productos > a.btnMenu:hover { box-shadow: 0 6px 14px rgba(20, 33, 61, .18); }
 .pos-productos > a.btnMenu:active { transform: scale(.97); }
 .pos-productos > a.btnMenu > div { display: block !important; width: 100% !important; height: 100%; padding: 0 !important; }
 
@@ -465,7 +473,7 @@ body.pos-body-login .pos-app { display: none; }
     width: 100% !important;
     height: 80px !important;
     margin: 0 !important;
-    border: 2px dashed #b9c3cf !important;
+    border: 2px dashed #cfc7b8 !important;
     border-radius: var(--pos-radius-sm) !important;
     background: var(--pos-surface-2);
     color: var(--pos-text) !important;
@@ -534,8 +542,8 @@ body.pos-body-login .pos-app { display: none; }
     border: 0;
     background: transparent;
     font-size: 22px;
-    font-weight: 800;
-    color: var(--pos-text);
+    font-weight: 700;
+    color: var(--pos-ink);
 }
 
 .pos-ticket-head-actions { display: flex; gap: 6px; }
@@ -591,7 +599,7 @@ body.pos-body-login .pos-app { display: none; }
     align-items: center;
     justify-content: center;
     gap: 8px;
-    color: #a4aeb9;
+    color: #a39c8f;
     pointer-events: none;
 }
 
@@ -629,7 +637,7 @@ body.pos-body-login .pos-app { display: none; }
     background: var(--pos-surface);
     font-size: 15px;
     font-weight: 700;
-    color: var(--pos-text);
+    color: var(--pos-ink);
 }
 
 .pos-keypad button:active { background: var(--pos-accent-soft); }
@@ -646,9 +654,9 @@ body.pos-body-login .pos-app { display: none; }
     width: 100%;
     border: 0;
     background: transparent;
-    font-weight: 800;
+    font-weight: 700;
     font-variant-numeric: tabular-nums;
-    color: var(--pos-text);
+    color: var(--pos-ink);
     outline: none;
 }
 
@@ -666,19 +674,19 @@ body.pos-body-login .pos-app { display: none; }
     border: 0;
     border-radius: var(--pos-radius-sm);
     background: var(--pos-accent);
-    color: #fff;
+    color: var(--pos-ink);
     font-size: 19px;
     font-weight: 800;
     letter-spacing: .04em;
-    box-shadow: 0 4px 12px rgba(242, 113, 28, .35);
+    box-shadow: 0 4px 12px rgba(232, 150, 28, .35);
     transition: background .15s;
 }
 
-.pos-btn-facturar:hover { background: var(--pos-accent-dark); }
+.pos-btn-facturar:hover { background: var(--pos-accent-hover); }
 .pos-btn-facturar small { font-size: 11px; opacity: .75; font-weight: 600; }
 
 /* ---------- Modales heredados ---------- */
-.modal-content { border-radius: var(--pos-radius); border: 0; box-shadow: 0 20px 50px rgba(16, 24, 40, .3); }
+.modal-content { border-radius: var(--pos-radius); border: 0; box-shadow: 0 20px 50px rgba(20, 33, 61, .3); }
 
 /* ---------- Cobro ---------- */
 .pos-cobro .modal-dialog { width: 1040px; max-width: calc(100% - 24px); margin: 24px auto; }
@@ -694,10 +702,10 @@ body.pos-body-login .pos-app { display: none; }
     color: #fff;
 }
 
-.pos-cobro-head .pos-label { color: #9aa5b1; }
-.pos-cobro-total { font-size: 18px; font-weight: 700; color: #9aa5b1; line-height: 1.1; }
+.pos-cobro-head .pos-label { color: var(--pos-topbar-muted); }
+.pos-cobro-total { font-size: 18px; font-weight: 700; color: var(--pos-topbar-muted); line-height: 1.1; }
 .pos-cobro-total strong { font-size: 38px; font-weight: 800; color: var(--pos-accent); font-variant-numeric: tabular-nums; }
-.pos-cobro-total-usd { color: #9aa5b1; font-weight: 600; font-variant-numeric: tabular-nums; }
+.pos-cobro-total-usd { color: var(--pos-topbar-muted); font-weight: 600; font-variant-numeric: tabular-nums; }
 
 .pos-cobro-head-info { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; text-align: right; }
 .pos-cobro-salida {
@@ -707,7 +715,7 @@ body.pos-body-login .pos-app { display: none; }
     font-weight: 700;
     text-transform: uppercase;
 }
-.pos-cobro-literal { max-width: 360px; color: #c5ced8; font-size: 13px; text-transform: uppercase; }
+.pos-cobro-literal { max-width: 360px; color: #c7cfdd; font-size: 13px; text-transform: uppercase; }
 
 .pos-cobro-body {
     display: grid;
@@ -784,9 +792,10 @@ body.pos-body-login .pos-app { display: none; }
 .pos-cobro-keypad button:active { background: var(--pos-accent-soft); }
 .pos-cobro-keypad .pos-cobro-limpiar { grid-column: span 3; height: 40px; font-size: 14px; color: var(--pos-danger); }
 
-.pos-cobro-cambio { margin-top: auto; padding: 12px 14px; border-radius: var(--pos-radius-sm); background: #e3f6ec; }
+.pos-cobro-cambio { container-type: inline-size; margin-top: auto; padding: 12px 14px; border-radius: var(--pos-radius-sm); background: #e3f6ec; }
 .pos-cobro-cambio .pos-label { color: var(--pos-success); }
-.pos-cobro-cambio-montos { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+/* Una fila por moneda: esta columna es angosta y el monto en Bs debe verse completo */
+.pos-cobro-cambio-montos { display: flex; flex-direction: column; gap: 2px; }
 .pos-cobro-cambio-montos label { display: flex; align-items: baseline; gap: 6px; margin: 0; color: var(--pos-muted); font-weight: 600; }
 .pos-cobro-cambio-montos input {
     width: 100%;
@@ -797,10 +806,11 @@ body.pos-body-login .pos-app { display: none; }
     font-variant-numeric: tabular-nums;
     outline: none;
 }
-.pos-cobro-cambio-montos label:first-child { flex: 1; min-width: 0; }
-.pos-cobro-cambio-montos label:first-child input { font-size: 26px; }
-.pos-cobro-cambio-montos label:last-child { flex: 0 0 110px; }
-.pos-cobro-cambio-montos label:last-child input { font-size: 16px; text-align: right; }
+.pos-cobro-cambio-montos input { min-width: 0; text-align: right; }
+/* "Bs" sube a la fila del título para dejar todo el ancho al número; el tamaño se adapta a la caja */
+.pos-cobro-cambio-montos label:first-child { flex-direction: column; align-items: flex-end; gap: 0; margin-top: -18px; }
+.pos-cobro-cambio-montos label:first-child input { font-size: min(32px, 17.5cqw); line-height: 1.15; }
+.pos-cobro-cambio-montos label:last-child input { font-size: 16px; }
 .pos-cobro-cambio.is-falta { background: #fde8e8; }
 .pos-cobro-cambio.is-falta .pos-label,
 .pos-cobro-cambio.is-falta input { color: var(--pos-danger); }
@@ -873,7 +883,7 @@ body.pos-body-login .pos-app { display: none; }
 .pos-hist-title { display: flex; align-items: center; gap: 12px; margin-right: auto; }
 .pos-hist-title > .fa { font-size: 22px; color: var(--pos-accent); }
 .pos-hist-title h4 { margin: 0; font-size: 18px; font-weight: 700; }
-.pos-hist-title small { color: #9aa5b1; font-size: 12px; }
+.pos-hist-title small { color: var(--pos-topbar-muted); font-size: 12px; }
 
 .pos-hist-fecha { width: 190px; }
 .pos-hist-fecha .input-group-addon,
@@ -895,10 +905,10 @@ body.pos-body-login .pos-app { display: none; }
     color: #fff;
 }
 
-.pos-hist-btn-cierre { background: var(--pos-accent); }
-.pos-hist-btn-cierre:hover { background: var(--pos-accent-dark); }
+.pos-hist-btn-cierre { background: var(--pos-accent); color: var(--pos-ink); }
+.pos-hist-btn-cierre:hover { background: var(--pos-accent-hover); }
 .pos-hist-btn-volver { background: var(--pos-topbar-2); }
-.pos-hist-btn-volver:hover { background: #3a475a; }
+.pos-hist-btn-volver:hover { background: var(--pos-topbar-3); }
 
 .pos-hist-stats {
     display: grid;
@@ -982,7 +992,7 @@ body.pos-body-login .pos-app { display: none; }
 
 .pos-historico table.table > tbody > tr > td {
     padding: 9px 12px;
-    border-top: 1px solid #edf0f3;
+    border-top: 1px solid #f1ece3;
     vertical-align: middle;
     font-variant-numeric: tabular-nums;
 }
@@ -1052,7 +1062,7 @@ body.pos-body-login .pos-app { display: none; }
     color: #fff;
     flex-shrink: 0;
 }
-.pos-hist-total span { font-size: 13px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: #9aa5b1; }
+.pos-hist-total span { font-size: 13px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--pos-topbar-muted); }
 .pos-hist-total strong { font-size: 24px; color: var(--pos-accent); font-variant-numeric: tabular-nums; }
 
 @media (max-width: 1280px) {
@@ -1089,7 +1099,9 @@ body.pos-body-login .pos-app { display: none; }
 /* ---------- Pantallas medianas y tablets ---------- */
 @media (max-width: 1280px) {
     :root { --pos-ticket-width: 360px; }
-    .pos-brand span, .pos-clock #h3FechaActual { display: none; }
+    .pos-brand-logo { display: none !important; }
+    .pos-brand-icono { display: block !important; }
+    .pos-clock #h3FechaActual { display: none; }
     .pos-tabs > li > a { padding: 10px; }
 }
 
@@ -1119,23 +1131,106 @@ body.pos-body-login .pos-app { display: none; }
     .pos-span-4 { grid-column: span 2; }
 }
 
+/* ---------- Tipografía de títulos y cifras ---------- */
+.pos-body h1, .pos-body h2, .pos-body h3, .pos-body h4, .pos-body h5,
+.modal-title,
+.ajs-header,
+#totalBs,
+.pos-orden,
+.pos-clock #h1reloj,
+.pos-cobro-total strong,
+.pos-hist-stat strong,
+.pos-hist-total strong {
+    font-family: var(--pos-font-display);
+}
+
+.pos-body h1, .pos-body h2, .pos-body h3, .pos-body h4, .pos-body h5,
+.modal-title,
+.pos-hist-stat strong { color: var(--pos-ink); }
+
+.pos-hist-title h4 { color: #fff; }
+
+/* ---------- Componentes de Bootstrap 3 con los colores de la marca ---------- */
+a { color: var(--pos-accent-dark); }
+a:hover, a:focus { color: var(--pos-ink); }
+
+.btn-link { color: var(--pos-accent-dark); }
+.btn-link:hover, .btn-link:focus { color: var(--pos-ink); }
+
+input[type=checkbox], input[type=radio] { accent-color: var(--pos-accent); }
+
+.form-control[disabled], .form-control[readonly], fieldset[disabled] .form-control { background-color: var(--pos-surface-2); }
+
+/* El contorno queda para el teclado; con mouse o pantalla táctil basta el subrayado */
+.pos-tabs > li > a:focus:not(:focus-visible) { outline: 0; }
+
+.form-control:focus {
+    border-color: var(--pos-accent);
+    box-shadow: 0 0 0 3px rgba(232, 150, 28, .2);
+}
+
+.btn { font-weight: 600; }
+
+.btn-primary { background-color: var(--pos-ink); border-color: var(--pos-ink); color: #fff; }
+.btn-primary:hover, .btn-primary:focus, .btn-primary:active, .btn-primary.active,
+.btn-primary[disabled], .btn-primary[disabled]:hover {
+    background-color: var(--pos-topbar-2);
+    border-color: var(--pos-topbar-2);
+    color: #fff;
+}
+
+.btn-warning { background-color: var(--pos-accent); border-color: var(--pos-accent); color: var(--pos-ink); }
+.btn-warning:hover, .btn-warning:focus, .btn-warning:active, .btn-warning.active,
+.btn-warning[disabled], .btn-warning[disabled]:hover {
+    background-color: var(--pos-accent-hover);
+    border-color: var(--pos-accent-hover);
+    color: var(--pos-ink);
+}
+
+.btn-info { background-color: var(--pos-text); border-color: var(--pos-text); color: #fff; }
+.btn-info:hover, .btn-info:focus, .btn-info:active, .btn-info.active,
+.btn-info[disabled], .btn-info[disabled]:hover {
+    background-color: var(--pos-ink);
+    border-color: var(--pos-ink);
+    color: #fff;
+}
+
+.btn-success { background-color: var(--pos-success); border-color: var(--pos-success); }
+.btn-danger { background-color: var(--pos-danger); border-color: var(--pos-danger); }
+
+.pagination > .active > a,
+.pagination > .active > a:hover,
+.pagination > .active > span {
+    background-color: var(--pos-ink);
+    border-color: var(--pos-ink);
+}
+
+.pagination > li > a { color: var(--pos-ink); }
+
+.datepicker table tr td.active,
+.datepicker table tr td.active:hover,
+.datepicker table tr td.active.active {
+    background: var(--pos-accent) !important;
+    color: var(--pos-ink) !important;
+    text-shadow: none;
+}
 /* ---------- Ingreso ---------- */
 body.pos-body-login .modal-backdrop.in { opacity: .15; }
 
 .pos-login .modal-dialog { width: 400px; max-width: calc(100% - 24px); margin: 8vh auto; }
 .pos-login .modal-content { overflow: hidden; }
 
+/* El fondo debe ser el mismo crema del logo (--pos-bg) */
 .pos-login-head {
     padding: 28px 28px 20px;
-    background: var(--pos-topbar);
-    color: #fff;
+    background: var(--pos-bg);
+    border-bottom: 1px solid var(--pos-border);
     text-align: center;
 }
 
-.pos-login-head img { width: 56px; height: 56px; object-fit: contain; }
-.pos-login-head h1 { margin: 10px 0 2px; font-size: 24px; font-weight: 700; }
-.pos-login-head h1 strong { color: var(--pos-accent); }
-.pos-login-head p { margin: 0; color: #9aa5b1; font-size: 13px; }
+.pos-login-head img { width: 280px; max-width: 100%; height: auto; }
+.pos-login-head h1 { margin: 0 0 14px; line-height: 0; }
+.pos-login-head p { margin: 0; color: var(--pos-muted); font-size: 13px; }
 
 .pos-login-body { padding: 24px 28px 28px; }
 .pos-login-body .pos-label { margin-bottom: 6px; }

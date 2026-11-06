@@ -1,4 +1,4 @@
-# POS Gourmet (Laravel + PostgreSQL)
+# Mesatek (Laravel + PostgreSQL)
 
 Migración del POS para restaurantes PHP/MySQL original (en `posgourmet/`, sólo referencia: **no modificar**)
 a Laravel 13 + PostgreSQL 17 en Docker. Ver `README.md` y `docs/MIGRACION.md`.
@@ -14,3 +14,8 @@ a Laravel 13 + PostgreSQL 17 en Docker. Ver `README.md` y `docs/MIGRACION.md`.
 - Panel `/admin` (middleware `admin`): Blade + Tailwind 4 + Alpine (`resources/css/admin.css`,
   `npm run build` dentro del contenedor). Catálogos simples se agregan en `App\Admin\Catalogos`;
   reportes nuevos como clase en `App\Admin\Reportes` registrada en `Registro::REPORTES`.
+- Marca Mesatek: azul noche `#14213D`, ámbar `#E8961C`, crema `#FAF7F2`, gris pizarra `#4A5468`; Space Grotesk
+  (títulos) e Inter (textos), servidas desde `public/assets/fuentes/`. Tokens en `resources/css/admin.css` y
+  `public/css/pos/pos.css`; logos e íconos en `public/assets/marca/`. Sobre ámbar el texto va en azul noche, nunca blanco.
+- `posgourmet` sobrevive sólo como identificador técnico (BD, contenedores, `config/posgourmet.php`, `posgourmet.js`);
+  lo visible para el usuario es Mesatek.

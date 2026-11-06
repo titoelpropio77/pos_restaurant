@@ -2,7 +2,7 @@
 
 /*
 |--------------------------------------------------------------------------
-| Configuración del POS Gourmet
+| Configuración de Mesatek
 |--------------------------------------------------------------------------
 |
 | En el sistema original estas opciones se activaban creando archivos .txt

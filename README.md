@@ -1,4 +1,4 @@
-# POS Gourmet — Laravel + PostgreSQL
+# Mesatek — Laravel + PostgreSQL
 
 Sistema de punto de venta para restaurantes, migrado del PHP/MySQL original
 (`posgourmet/posgourmet/`) a **Laravel 13 + PostgreSQL 17**, todo dockerizado.

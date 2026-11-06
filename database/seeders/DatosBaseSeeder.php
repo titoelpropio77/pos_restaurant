@@ -34,7 +34,7 @@ class DatosBaseSeeder extends Seeder
         Moneda::firstOrCreate(['abreviatura' => 'Bs'], ['nombre' => 'BOLIVIANOS']);
         Moneda::firstOrCreate(['abreviatura' => 'USD'], ['nombre' => 'DÓLARES']);
 
-        $empresa = Empresa::firstOrCreate(['nombre' => env('POS_EMPRESA', 'POS GOURMET')]);
+        $empresa = Empresa::firstOrCreate(['nombre' => env('POS_EMPRESA', 'MESATEK')]);
 
         $sucursal = Sucursal::firstOrCreate(
             ['nombre' => 'CASA MATRIZ'],

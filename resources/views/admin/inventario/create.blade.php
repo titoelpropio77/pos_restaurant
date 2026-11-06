@@ -18,7 +18,7 @@
             @foreach ($tipos as $clave => $texto)
                 <label class="cursor-pointer">
                     <input type="radio" name="tipo" value="{{ $clave }}" x-model="tipo" class="peer sr-only">
-                    <span class="inline-flex rounded-lg border border-borde px-4 py-2 text-sm font-semibold text-tenue peer-checked:border-marca-500 peer-checked:bg-marca-500 peer-checked:text-white">{{ $texto }}</span>
+                    <span class="inline-flex rounded-lg border border-borde px-4 py-2 text-sm font-semibold text-tenue peer-checked:border-marca-500 peer-checked:bg-marca-500 peer-checked:text-panel">{{ $texto }}</span>
                 </label>
             @endforeach
         </div>

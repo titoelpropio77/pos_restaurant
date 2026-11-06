@@ -9,7 +9,7 @@
         <div class="mb-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             @foreach ($reportes as $slug => $reporte)
                 <a href="{{ route('admin.reportes.show', $slug) }}" class="tarjeta group flex gap-4 p-5 transition hover:ring-marca-500">
-                    <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-marca-50 text-lg text-marca-600 group-hover:bg-marca-500 group-hover:text-white">
+                    <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-marca-50 text-lg text-marca-600 group-hover:bg-marca-500 group-hover:text-panel">
                         <i class="fa {{ $reporte->icono() }}"></i>
                     </span>
                     <span>

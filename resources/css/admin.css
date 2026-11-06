@@ -5,20 +5,32 @@
 @source '../../app/Admin/**/*.php';
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 
-/* Mismos tokens que la pantalla del POS (public/css/pos/pos.css) */
+/*
+ * Marca Mesatek: azul noche #14213D, ámbar #E8961C, crema #FAF7F2, gris pizarra #4A5468.
+ * Mismos tokens que la pantalla del POS (public/css/pos/pos.css). Las fuentes se cargan
+ * en public/css/fuentes.css.
+ * Sobre ámbar (marca-500) el texto va en azul noche (text-panel): el blanco no se lee.
+ * Para texto ámbar sobre claro usar marca-600 o marca-700.
+ */
 @theme {
-    --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    --color-marca-50: #fff4ec;
-    --color-marca-100: #ffe3cf;
-    --color-marca-500: #f2711c;
-    --color-marca-600: #d65d0e;
-    --color-marca-700: #ad4a0b;
-    --color-tinta: #1f2933;
-    --color-tenue: #6b7785;
-    --color-borde: #dde2e8;
-    --color-fondo: #eef1f5;
-    --color-panel: #1d2633;
-    --color-panel-2: #2a3545;
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+    --font-display: 'Space Grotesk', var(--font-sans);
+    --color-marca-50: #fdf6ea;
+    --color-marca-100: #fbe7c8;
+    --color-marca-400: #f2ab42;
+    --color-marca-500: #e8961c;
+    --color-marca-600: #a8660c;
+    --color-marca-700: #87500a;
+    --color-tinta: #4a5468;
+    --color-tenue: #626c80;
+    --color-borde: #e7e0d4;
+    --color-fondo: #faf7f2;
+    --color-panel: #14213d;
+    --color-panel-2: #24345a;
+    /* Grises claros de Tailwind en tono cálido, para que combinen con el crema */
+    --color-slate-50: #f5f0e7;
+    --color-slate-100: #efe9dd;
+    --color-slate-200: #e7e0d4;
 }
 
 @utility btn {
@@ -26,7 +38,7 @@
 }
 
 @utility btn-primario {
-    @apply btn bg-marca-500 text-white shadow-sm hover:bg-marca-600;
+    @apply btn bg-marca-500 text-panel shadow-sm hover:bg-marca-400;
 }
 
 @utility btn-secundario {
@@ -63,6 +75,10 @@
 
 @utility insignia {
     @apply inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold;
+}
+
+@layer base {
+    h1, h2, h3, h4 { @apply font-display text-panel; }
 }
 
 @layer components {

@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('titulo', 'Administración') · POS Gourmet</title>
-    <link rel="icon" href="{{ asset('abms1/imagenes/logo.png') }}">
+    <title>@yield('titulo', 'Administración') · {{ config('app.name') }}</title>
+    @include('partials.marca')
     <link rel="stylesheet" href="{{ asset('abms1/css/puglins/font-awesome.css') }}">
     @vite(['resources/css/admin.css', 'resources/js/admin.js'])
 </head>
@@ -54,18 +54,17 @@
     {{-- Menú lateral --}}
     <aside class="no-imprimir fixed inset-y-0 left-0 z-40 w-64 -translate-x-full overflow-y-auto bg-panel text-slate-300 transition lg:translate-x-0"
            :class="menu && 'translate-x-0'">
-        <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-2 px-5 py-4 text-lg text-white">
-            <img src="{{ asset('abms1/imagenes/logo.png') }}" class="h-8 w-8 object-contain" alt="">
-            <span>POS<strong class="text-marca-500">Gourmet</strong></span>
+        <a href="{{ route('admin.dashboard') }}" class="block px-5 py-4">
+            <img src="{{ asset('assets/marca/logo-oscuro.png') }}" class="h-10 w-auto" alt="Mesatek">
         </a>
         <nav class="px-3 pb-6">
             @foreach ($menu as $grupo => $items)
-                <p class="mt-4 mb-1 px-3 text-[11px] font-semibold tracking-wider text-slate-500 uppercase">{{ $grupo }}</p>
+                <p class="mt-4 mb-1 px-3 text-[11px] font-semibold tracking-wider text-slate-400 uppercase">{{ $grupo }}</p>
                 @foreach ($items as [$ruta, $icono, $texto, $patron])
                     @php $url = is_array($ruta) ? route($ruta[0], $ruta[1]) : route($ruta); @endphp
                     <a href="{{ $url }}" @class([
                         'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition',
-                        'bg-marca-500 text-white' => $activo($patron),
+                        'bg-marca-500 text-panel' => $activo($patron),
                         'hover:bg-panel-2 hover:text-white' => ! $activo($patron),
                     ])>
                         <i class="fa {{ $icono }} w-4 text-center"></i>{{ $texto }}
@@ -84,7 +83,7 @@
             </div>
             <div class="ml-auto flex items-center gap-2">
                 <a href="{{ route('pos.index') }}" class="btn-primario"><i class="fa fa-desktop"></i><span class="hidden sm:inline">Ir al POS</span></a>
-                <span class="hidden items-center gap-2 rounded-full bg-slate-100 px-3 py-1.5 text-sm font-semibold sm:flex"><i class="fa fa-user text-marca-500"></i>{{ auth()->user()->nombres }}</span>
+                <span class="hidden items-center gap-2 rounded-full bg-slate-100 px-3 py-1.5 text-sm font-semibold sm:flex"><i class="fa fa-user text-marca-600"></i>{{ auth()->user()->nombres }}</span>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <button class="btn-secundario" title="Salir"><i class="fa fa-sign-out"></i></button>

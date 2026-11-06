@@ -9,7 +9,7 @@
             @foreach (\App\Http\Controllers\Admin\DashboardController::PERIODOS as $clave => $texto)
                 <a href="{{ route('admin.dashboard', ['periodo' => $clave, 'sucursal' => $sucursalId]) }}"
                    @class(['rounded-md px-3 py-1.5 text-sm font-semibold transition',
-                           'bg-marca-500 text-white' => $periodo === (string) $clave,
+                           'bg-marca-500 text-panel' => $periodo === (string) $clave,
                            'text-tenue hover:text-tinta' => $periodo !== (string) $clave])>{{ $texto }}</a>
             @endforeach
         </div>

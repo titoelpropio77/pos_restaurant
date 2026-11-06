@@ -65,7 +65,7 @@
                                         @foreach (PC::DIAS as $clave => $texto)
                                             <label class="cursor-pointer">
                                                 <input type="checkbox" name="{{ $base }}[dias][]" value="{{ $clave }}" @checked(in_array($clave, $dias)) class="peer sr-only">
-                                                <span class="inline-flex h-8 w-9 items-center justify-center rounded-md border border-borde text-xs font-semibold text-tenue peer-checked:border-marca-500 peer-checked:bg-marca-500 peer-checked:text-white">{{ $texto }}</span>
+                                                <span class="inline-flex h-8 w-9 items-center justify-center rounded-md border border-borde text-xs font-semibold text-tenue peer-checked:border-marca-500 peer-checked:bg-marca-500 peer-checked:text-panel">{{ $texto }}</span>
                                             </label>
                                         @endforeach
                                     </div>
@@ -76,7 +76,7 @@
                                         @foreach (PC::IMPRESORAS as $clave => $texto)
                                             <label class="cursor-pointer">
                                                 <input type="checkbox" name="{{ $base }}[impresoras][]" value="{{ $clave }}" @checked(in_array($clave, $impresoras)) class="peer sr-only">
-                                                <span class="inline-flex h-8 items-center rounded-md border border-borde px-2.5 text-xs font-semibold text-tenue peer-checked:border-marca-500 peer-checked:bg-marca-500 peer-checked:text-white">{{ $texto }}</span>
+                                                <span class="inline-flex h-8 items-center rounded-md border border-borde px-2.5 text-xs font-semibold text-tenue peer-checked:border-marca-500 peer-checked:bg-marca-500 peer-checked:text-panel">{{ $texto }}</span>
                                             </label>
                                         @endforeach
                                     </div>

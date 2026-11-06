@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>POS GOURMET</title>
-    <link rel="icon" href="{{ asset('abms1/imagenes/logo.png') }}" type="image/x-icon" />
+    <title>{{ config('app.name') }}</title>
+    @include('partials.marca')
     @if ($autenticado)
         <meta name="viewport" content="width=device-width, initial-scale=1">
     @else
@@ -74,8 +74,8 @@
     {{-- Barra superior --}}
     <header class="pos-topbar">
         <div class="pos-brand">
-            <img src="{{ asset('abms1/imagenes/logo.png') }}" alt="">
-            <span>POS<strong>Gourmet</strong></span>
+            <img class="pos-brand-logo" src="{{ asset('assets/marca/logo-oscuro.png') }}" alt="Mesatek">
+            <img class="pos-brand-icono" src="{{ asset('assets/marca/icono-oscuro.png') }}" alt="Mesatek">
         </div>
 
         <div class="pos-search">
@@ -315,7 +315,7 @@
                         }
                     }
                 }
-                document.title = vf_Venta + " POS GOURMET";
+                document.title = vf_Venta + " {{ config('app.name') }}";
             } else {
                 vturno = "NOCHE";
             }

@@ -296,16 +296,16 @@
                                 <input type="number" class="form-control" id="numMesa" name="ans">
                             </div>
                             <div class="col-sm-3 col-lg-3" style="padding: 0">
-                                <button type="reset"  style="background:  #F93;    width: 100%;" type="button" class="btn btn-info">C</button>
+                                <button type="reset"  style="background:  #E8961C;    width: 100%;" type="button" class="btn btn-info">C</button>
                             </div>
 
                         </div>
                         @for ($i = 1; $i < 10; $i++)
-<button type="button" numero="{{ $i }}" class="btn btn-primary  col-lg-4 col-md-4 col-sm-4 col-xs-4" style="color:black;  font-weight: bold;BACKGROUND-COLOR: #F93;" onClick="document.tecladoMesa.ans.value+={{ $i }}">{{ $i }}</button>
+<button type="button" numero="{{ $i }}" class="btn btn-primary  col-lg-4 col-md-4 col-sm-4 col-xs-4" style="color:black;  font-weight: bold;BACKGROUND-COLOR: #E8961C;" onClick="document.tecladoMesa.ans.value+={{ $i }}">{{ $i }}</button>
 @endfor
                         <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4" style=" ">
                         </div>
-                        <button type ="button"  class="btn btn-primary  col-lg-4 col-md-4 col-sm-4 col-xs-4"  style="color:black;  font-weight: bold;BACKGROUND-COLOR: #F93;  " onClick="document.tecladoMesa.ans.value += 0" >0</button>
+                        <button type ="button"  class="btn btn-primary  col-lg-4 col-md-4 col-sm-4 col-xs-4"  style="color:black;  font-weight: bold;BACKGROUND-COLOR: #E8961C;  " onClick="document.tecladoMesa.ans.value += 0" >0</button>
                     </div>
                 </form>
 

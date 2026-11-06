@@ -32,7 +32,7 @@
             @foreach ($atajos as $texto => [$d, $h])
                 <a href="{{ request()->fullUrlWithQuery(['desde' => $d->format('Y-m-d'), 'hasta' => $h->format('Y-m-d')]) }}"
                    @class(['rounded-md px-3 py-1 text-xs font-semibold transition',
-                           'bg-marca-500 text-white' => $filtros->desde->isSameDay($d) && $filtros->hasta->isSameDay($h),
+                           'bg-marca-500 text-panel' => $filtros->desde->isSameDay($d) && $filtros->hasta->isSameDay($h),
                            'bg-slate-100 text-tenue hover:text-tinta' => ! ($filtros->desde->isSameDay($d) && $filtros->hasta->isSameDay($h))])>{{ $texto }}</a>
             @endforeach
         </div>

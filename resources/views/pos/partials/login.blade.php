@@ -4,8 +4,7 @@
         <form class="modal-content" method="POST" action="{{ route('login') }}">
             @csrf
             <div class="pos-login-head">
-                <img src="{{ asset('abms1/imagenes/logo.png') }}" alt="">
-                <h1>POS<strong>Gourmet</strong></h1>
+                <h1><img src="{{ asset('assets/marca/logo-claro-lema.png') }}" alt="Mesatek, sistema para restaurantes"></h1>
                 <p>Ingrese sus datos para abrir la caja</p>
             </div>
 

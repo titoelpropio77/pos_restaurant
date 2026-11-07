@@ -7,6 +7,7 @@ use App\Http\Controllers\Pos\CustomerController;
 use App\Http\Controllers\Pos\ExpenseController;
 use App\Http\Controllers\Pos\PosController;
 use App\Http\Controllers\Pos\PrepaidCardController;
+use App\Http\Controllers\Pos\PrintController;
 use App\Http\Controllers\Pos\SaleController;
 use App\Http\Controllers\Pos\SessionController;
 use App\Http\Controllers\Pos\TableController;
@@ -55,6 +56,14 @@ Route::middleware(['pos', 'permission:pos.access'])->prefix('pos')->name('pos.')
     Route::get('sales/detail', [SaleController::class, 'detail'])->middleware('permission:pos.sales.view')->name('sales.detail');
     Route::post('sales/void', [SaleController::class, 'void'])->middleware('permission:pos.sales.void')->name('sales.void');
     Route::post('sales/print', [SaleController::class, 'print'])->middleware('permission:pos.sales.print')->name('sales.print');
+
+    // Tickets para la ticketera USB de la caja (HTML que el POS imprime desde un iframe)
+    Route::middleware('permission:pos.orders.print')->group(function () {
+        Route::get('print/table-order', [PrintController::class, 'tableOrder'])->name('print.table-order');
+        Route::get('print/sale-order', [PrintController::class, 'saleOrder'])->name('print.sale-order');
+        Route::get('print/pre-bill', [PrintController::class, 'preBill'])->name('print.pre-bill');
+        Route::get('print/receipt', [PrintController::class, 'receipt'])->name('print.receipt');
+    });
     Route::post('cash_register/open', [CashRegisterController::class, 'open'])->middleware('permission:pos.cash.open')->name('cash_register.open');
     Route::post('cash_register/closing', [CashRegisterController::class, 'closing'])->middleware('permission:pos.cash.close')->name('cash_register.closing');
     Route::post('cash_register/closing/note', [CashRegisterController::class, 'note'])->middleware('permission:pos.cash.close')->name('cash_register.note');

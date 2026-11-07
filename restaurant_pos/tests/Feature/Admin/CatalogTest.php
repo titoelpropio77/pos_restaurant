@@ -46,7 +46,7 @@ class CatalogTest extends AdminTestCase
 
     public function test_a_branch_new_receives_its_sequence(): void
     {
-        $this->post(route('admin.catalogs.store', 'branches'), ['name' => 'SUCURSAL NORTE', 'status' => 'ACTIVE']);
+        $this->post(route('admin.catalogs.store', 'branches'), ['name' => 'SUCURSAL NORTE', 'paper_width' => 80, 'status' => 'ACTIVE']);
 
         $branch = Branch::where('name', 'SUCURSAL NORTE')->firstOrFail();
         $this->assertNotNull(InvoiceSequence::forSales($branch->id));
@@ -68,7 +68,7 @@ class CatalogTest extends AdminTestCase
         $this->get(route('admin.catalogs.index', 'dining_tables'))->assertSee('Nueva mesa');
         $this->get(route('admin.catalogs.create', 'dining_tables'))->assertSee('Nueva mesa');
 
-        $this->post(route('admin.catalogs.store', 'branches'), ['name' => 'SUCURSAL SUR', 'status' => 'ACTIVE'])
+        $this->post(route('admin.catalogs.store', 'branches'), ['name' => 'SUCURSAL SUR', 'paper_width' => 58, 'status' => 'ACTIVE'])
             ->assertSessionHas('ok', 'Sucursal registrada correctamente.');
         $this->post(route('admin.catalogs.store', 'customers'), ['customer_name' => 'ANA ROJAS'])
             ->assertSessionHas('ok', 'Cliente registrado correctamente.');

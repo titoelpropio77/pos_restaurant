@@ -337,6 +337,7 @@
         myTimer();
     </script>
     <script src="{{ asset('js/pos/print-agent.js') }}?v={{ filemtime(public_path('js/pos/print-agent.js')) }}"></script>
+    <script src="{{ asset('js/pos/ticket-print.js') }}?v={{ filemtime(public_path('js/pos/ticket-print.js')) }}"></script>
     <script src="{{ asset('js/pos/pos.js') }}?v={{ filemtime(public_path('js/pos/pos.js')) }}"></script>
 @endif
 

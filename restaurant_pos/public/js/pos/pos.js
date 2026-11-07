@@ -982,106 +982,29 @@ function saveDetail() {//guarda la venta en geneneral1
             $('#order_number').val(json.result2);
             // $('#loading').css('display','none');
             
-            $.post(ROUTES.printSale,{dateToday:saleDate , totalBs: totalBs,literal:value,idSale:json.result,Invoice:json.numberInvoice}, function (result) {
-                var json_invoice = JSON.parse(result);
-                // printJS('legacy/REPORTEPHP/'+json.result);
-                if (json_invoice.error != "") {
-                    if (isMobile.any())
-                    {
-                        if (cloud_print=="cloud_print") {
-                         $.ajax({
-                            url:"http://" + ipCustomer + ":8080/reportes/imprimir.php",
-                            datatype:"jsonp",
-                            data:{idSale:json.result,changeBs:json_invoice.listSale[0].change_bob,addressCustomer:addressCustomer,phoneCustomer:phoneCustomer, totalBs: totalBs,nameCustomer:nameCustomer,customerTaxId:customerTaxId,dateToday:dateToday,invoice:invoice,qr_code: json_invoice.control_qr,  listDSale: json_invoice.listDSale, literal: value, listRestaurant: json_invoice.listRestaurant},
-                            type:"post",
-                            success:function(res){
-
-                            }
-                        });
-                     }else{
-                         $.ajax({
-                            url:"legacy/reports/print_flag.php",
-                            datatype:"jsonp",
-                            data:{idSale:json.result,changeBs:json_invoice.listSale[0].change_bob,addressCustomer:addressCustomer,phoneCustomer:phoneCustomer, totalBs: totalBs,nameCustomer:nameCustomer,customerTaxId:customerTaxId,dateToday:dateToday,invoice:invoice,qr_code: json_invoice.control_qr,  listDSale: json_invoice.listDSale, literal: value, listRestaurant: json_invoice.listRestaurant},
-                            type:"post",
-                            success:function(res){
-
-                            }
-                        });
-                     }
-                     
-                        // $.post("http://" + ipCliente + ":8080/reportes/imprimir.php", {fechaHoy:fechaHoy,fac:fac,codigoqu: jsoni.control_qr, listaVenta: jsoni.listaVenta, listaDVenta: jsoni.listaDVenta, literal: valor, listaEmpresa: jsoni.listaEmpresa}, function (res) {}); //aqui hay q descomentar para que imprima desde el celular
-                        // window.open("legacy/REPORTEPHP/prueba4.php?idVenta="+json.result+"&&literal="+valor);                   
-
-                    } else {
-                        
-                        if (cloud_print=="cloud_print") {
-                            $.ajax({
-                                url:"http://" + ipCustomer + ":8080/reportes/imprimir.php",
-                                datatype:"jsonp",
-                                data:{idSale:json.result,changeBs:json_invoice.listSale[0].change_bob,addressCustomer:addressCustomer,phoneCustomer:phoneCustomer, totalBs: totalBs,nameCustomer:nameCustomer,customerTaxId:customerTaxId,dateToday:dateToday,invoice:invoice,qr_code: json_invoice.control_qr,  listDSale: json_invoice.listDSale, literal: value, listRestaurant: json_invoice.listRestaurant},
-                                type:"post",
-                                success:function(res){
-
-                                }
-                            });
-                        }else{
-                         $.ajax({
-                            url:"legacy/reports/print_flag.php",
-                            datatype:"jsonp",
-                            data:{idSale:json.result,changeBs:json_invoice.listSale[0].change_bob,addressCustomer:addressCustomer,phoneCustomer:phoneCustomer, totalBs: totalBs,nameCustomer:nameCustomer,customerTaxId:customerTaxId,dateToday:dateToday,invoice:invoice,qr_code: json_invoice.control_qr,  listDSale: json_invoice.listDSale, literal: value, listRestaurant: json_invoice.listRestaurant},
-                            type:"post",
-                            success:function(res){
-
-                            }
-                        });
-                     }
-                       // $.post("http://localhost:8080/reportes/imprimir.php", {fechaHoy:fechaHoy,fac:fac,codigoqu: jsoni.control_qr, listaVenta: jsoni.listaVenta, listaDVenta: jsoni.listaDVenta, literal: valor, listaEmpresa: jsoni.listaEmpresa}, function (res) { });//  imprimir a la factura 
-                        //para imprimir factura desde ordenador
-                    }
-                    
-                    // alert("impresora no conectada");
-                    // ventana=window.open("legacy/REPORTEPHP/prueba4.php?idVenta="+json.result+"&&literal="+valor); 
-                    if (optionItemTable==0) {
-                        var numberOrder=$('#numberOrder').val();
-                        if (cloud_print=="cloud_print") {
-                            $.ajax({
-                                url:"http://" + ipCustomer + ":8080/reportes/printCocina.php",
-                                datatype:"jsonp",
-                                data:{numberOrder:numberOrder,quantity:quantityA,subTotal:subtotalA,imPrint:result.print, nameProduct: nameProduct, listSale: json_invoice.listSale, listDSale: json_invoice.listDSale},
-                                type:"post",
-                                success:function(res){
-                                    if (processRefresh==10) {
-                                        location.reload();
-                                    }
-                                }
-                        });//Imprimir cocina
-                        }else{
-                            $.ajax({
-                                url:"legacy/reportes/printCocina.php",
-                                datatype:"jsonp",
-                                data:{numberOrder:numberOrder,quantity:quantityA,subTotal:subtotalA,imPrint:result.print, nameProduct: nameProduct, listSale: json_invoice.listSale, listDSale: json_invoice.listDSale},
-                                type:"post",
-                                success:function(res){
-                                    if (processRefresh==10) {
-                                        location.reload();
-                                    }
-                                }
-                        });//Imprimir cocina
+            // Nota de venta (o factura) y luego la comanda, en la ticketera de la caja
+            var saleId = json.result;
+            var withOrder = optionItemTable == 0;
+            TicketPrint.receipt(saleId, function () {
+                if (withOrder) {
+                    TicketPrint.saleOrder(saleId, function () {
+                        if (processRefresh==10) {
+                            location.reload();
                         }
-                        clearDetail();
-                    }
+                    });
                 }
-                if (optionItemTable == 1) {//solo paga los items selecionados 
-
-                    enableUpdateTable(optionItemTable);
-                    $('#numTable').val("");
-                    $('#btnInvoice').attr('onclick', 'fillDataModalF()');
-                    $('#spanProcessing').text("");
-                    optionItemTable = 0;
-                }
+            });
+            if (withOrder) {
+                clearDetail();
+            }
+            if (optionItemTable == 1) {//solo paga los items selecionados
+                enableUpdateTable(optionItemTable);
+                $('#numTable').val("");
+                $('#btnInvoice').attr('onclick', 'fillDataModalF()');
+                $('#spanProcessing').text("");
+                optionItemTable = 0;
+            }
             if (optionItemTable == 2) {//paga toda la mesa y la habilita para el siguiente uso
-
                 enableUpdateTable(optionItemTable);
                 $('#numTable').val("");
                 $('#btnInvoice').attr('onclick', 'fillDataModalF()');
@@ -1090,13 +1013,9 @@ function saveDetail() {//guarda la venta en geneneral1
             }
             $('#btnSaveDetail').removeAttr('disabled');
 
-
             addressCustomer="";
             phoneCustomer="";
             idCard="";
-            // TODO migración: PDF de factura (REPORTEPHP/prueba4.php) pendiente de portar a Laravel
-          //  window.open("legacy/REPORTEPHP/prueba4.php?idVenta="+json.result+"&&literal="+valor+"&&Fac="+fac+"&&fechaHoy="+fechaVenta);
-      });
             // ventana=window.open("legacy/REPORTEPHP/prueba4.php?idVenta="+json.result+"&&literal="+valor);    
             // ventana.close();
             alertify.success("GUARDADO CORRECTAMENTE");
@@ -1197,7 +1116,7 @@ function rowHistory(sale) {
         "<td class='text-right' data-order='" + total + "'>" + total.toFixed(2) + "</td>" +
         "<td class='js-estado'>" + badgeStatusHistory(sale.status) + "</td>" +
         "<td class='js-eliminpor'>" + escHistory(sale.voided_by) + "</td>" +
-        "<td class='text-right'>" + (active
+        "<td class='text-right'><button class='pos-hist-action' title='Reimprimir nota de venta' onclick='TicketPrint.receipt(" + parseInt(sale.id, 10) + ", null, true)'><i class='fa fa-print'></i></button> " + (active
             ? "<button class='pos-hist-action is-void' idProduct='" + sale.id + "' onclick='voidSale(this,1)'>ANULAR</button>"
             : "<button class='pos-hist-action is-activate' idProduct='" + sale.id + "' onclick='voidSale(this,1)'>ACTIVAR</button>") +
         "</td></tr>";
@@ -1536,7 +1455,7 @@ $(function () {
             });
          }else{
 
-            idTable = $(this).attr('table_id');
+            idTable = $(this).attr('idTable');
             numberTable = $(this).attr('numberTable');
             verifyEmployee($(this));   
         }
@@ -1559,7 +1478,7 @@ $(function () {
                 });
             }else{
                 if (key === "AUMENTAR") {
-                    idTable = $(this).attr('table_id');
+                    idTable = $(this).attr('idTable');
                     numberPerson = $(this).attr('numberPerson');
                     numberTable = $(this).text() == "" ? "0" :  $(this).attr('numberTable');
                     nameTable = $(this).text();
@@ -1567,7 +1486,7 @@ $(function () {
                 } else {
 
 
-                 idTable = $(this).attr('table_id');
+                 idTable = $(this).attr('idTable');
                  numberPerson = dining_room=="no_dining_room"?$(this).attr('numberPerson'):$(this).text();
                  numberTable = $(this).text() == "" ? "0" : $(this).attr('numberTable');
 
@@ -1863,13 +1782,8 @@ function addProductTable(person) {//parametro de entra cantidad de clientes en l
             }
             var timeA=horaActualSistemaOp();
             var PRODUCT_NAME=$('#selectWaiterTables option:selected').text();
-            if (cloud_print=="cloud_print") {
-                $.post("http://" + ipCustomer + ":8080/reportes/imprimirMesa.php", {process:'imprimeAbrirMesa',numberTable:numberTable,time:timeA,saleDate: saleDate,imPrint:result.print,  quantity: quantityA,nameProduct:nameProduct,subTotal:subtotalA,staff_name:PRODUCT_NAME,order_number:json.result}, function (res) {
-                });
-            }else{
-                $.post("legacy/reportes/imprimirMesa.php", {process:'imprimeAbrirMesa',numberTable:numberTable,time:timeA,saleDate: saleDate,imPrint:result.print,  quantity: quantityA,nameProduct:nameProduct,subTotal:subtotalA,staff_name:PRODUCT_NAME,order_number:json.result}, function (res) {
-                }); 
-            }
+            // Comanda en la ticketera de la caja (json.result = número de comanda de la mesa)
+            TicketPrint.tableOrder(idTable, json.result, saleDate);
             clearDetail();
             alertify.success('PRODUCTOS AGREGADOS A MESA');
 
@@ -2193,7 +2107,7 @@ function transferItemSelectedTable(option_name) {//opcion =1 traspasa todo, opci
 }
 
 function transferItemTable(button) {
-    idTableTransfer = $(button).attr('table_id');
+    idTableTransfer = $(button).attr('idTable');
     statusTable = $(button).attr('status');
     numberTableTransfer = $(button).text();
     idTableDecrease = idTable;
@@ -2267,13 +2181,8 @@ function increaseProductTable(idTable, numberTable) {
                 }
                 var timeA=horaActualSistemaOp();
                 var PRODUCT_NAME=$('#selectWaiterTables option:selected').text();
-                if (cloud_print=="cloud_print") {
-                    $.post("http://" + ipCustomer + ":8080/reportes/imprimirMesa.php", {process:'imprimeAbrirMesa',numberTable:numberTable,time:timeA,saleDate: saleDate,imPrint:result.print,  quantity: quantityA,nameProduct:nameProduct,subTotal:subtotalA,staff_name:PRODUCT_NAME,order_number:json.result}, function (res) {
-                    });
-                }else{
-                    $.post("legacy/reportes/imprimirMesa.php", {process:'imprimeAbrirMesa',numberTable:numberTable,time:timeA,saleDate: saleDate,imPrint:result.print,  quantity: quantityA,nameProduct:nameProduct,subTotal:subtotalA,staff_name:PRODUCT_NAME,order_number:json.result}, function (res) {
-                    });
-                }
+                // Comanda adicional en la ticketera de la caja
+                TicketPrint.tableOrder(idTable, json.result, saleDate);
                 clearDetail();
                 alertify.success('PRODUCTOS AGREGADOS A MESA');
                 listTables();
@@ -2386,43 +2295,13 @@ function enableUpdateTable(optionItemTable) {//opcion =1 solo paga los items sel
         });
     }
 
+    /** Precuenta de la mesa abierta en el detalle, en la ticketera de la caja. */
     function imprimirProductsTables(operation){
-        table_name = $('#tableTableItem input[name=idTableItem]');
-        error = "";
-        quantityA = new Array();
-        nameProduct = new Array();
-        priceA = new Array();
-        subTotal = new Array();
-        optionItemTable = 2;
-        total=$('#tdTotalTableItem').text();
-        if (table_name.length > 0) {
-
-            $(table_name).each(function (e) {
-
-                var quantity2 = $(this).closest("tr").find("input[name=inputAction]");
-                var quantityDetail = $(quantity2).parents("tr").find("td").eq(0).text();
-                var nameProduct = $(quantity2).parents("tr").find("td").eq(2).text();
-                var price = $(quantity2).parents("tr").find("td").eq(3).text();
-                var subtotalA = $(quantity2).parents("tr").find("td").eq(4).text();
-                quantityA.push(quantityDetail);
-                nameProduct.push(nameProduct);
-                priceA.push(price);
-                subTotal.push(subtotalA);
-            });
-            timeA=horaActualSistemaOp();
-            if (cloud_print=="cloud_print") {
-                $.post("http://" + ipCustomer + ":8080/reportes/imprimirMesa.php", {process:operation,quantity:quantityA,
-                    nameEmployeeServed:nameEmployeeServed,nameProduct:nameProduct,time:timeA,priceA:priceA,numberTable:numberTable,date:vf_sale,subTotal:subTotal,total:total,operation:operation}, function (res) {
-                    });
-            }
-            else{
-                $.post("legacy/reportes/imprimirMesa.php", {process:operation,quantity:quantityA,
-                    nameEmployeeServed:nameEmployeeServed,nameProduct:nameProduct,time:timeA,priceA:priceA,numberTable:numberTable,date:vf_sale,subTotal:subTotal,total:total,operation:operation}, function (res) {
-                    });
-            }
+        if (!idTable) {
+            alertify.error('SELECCIONE UNA MESA');
+            return;
         }
-
-
+        TicketPrint.preBill(idTable, vf_sale);
     }
 
 

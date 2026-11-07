@@ -40,6 +40,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'pos.tables.charge' => 'Cobrar mesas',
             'pos.tables.transfer' => 'Traspasar mesas',
             'pos.tables.void' => 'Anular mesas e ítems',
+            'pos.orders.print' => 'Imprimir comandas, precuentas y notas de venta',
             'pos.customers.view' => 'Buscar clientes',
             'pos.customers.create' => 'Registrar clientes',
             'pos.customers.update' => 'Editar clientes',

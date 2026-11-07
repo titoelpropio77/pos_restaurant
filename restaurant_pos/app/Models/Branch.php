@@ -24,6 +24,7 @@ class Branch extends Model
         'city_id',
         'counter',
         'print_ip',
+        'paper_width',
     ];
 
     protected function casts(): array

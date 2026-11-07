@@ -19,6 +19,7 @@ class ProductTest extends AdminTestCase
             'product_name' => 'Chicharrón',
             'category_id' => Category::first()->id,
             'sale_price' => 45,
+            'cost_price' => 20.5,
             'status' => 'ACTIVE',
             'asks_options' => 1,
             'options' => "con mote\nsin llajua\n",
@@ -38,6 +39,7 @@ class ProductTest extends AdminTestCase
         $config = $product->branches()->first();
 
         $this->assertSame('OPCIONES', $product->options_mode);
+        $this->assertEquals(20.5, (float) $product->cost_price);
         $this->assertSame(['CON MOTE', 'SIN LLAJUA'], $product->options()->pluck('option_name')->all());
         $this->assertEquals(48, $config->sale_price);
         $this->assertSame(['x', '', 'x'], [$config->sat, $config->mon, $config->print_kitchen]);

@@ -25,6 +25,7 @@
                     <x-admin.field name="product_name" label="Nombre" :value="$product->product_name" required class="sm:col-span-2" />
                     <x-admin.field name="category_id" label="Categoría" type="select" :options="$categories" :value="$product->category_id" empty="Seleccione..." required />
                     <x-admin.field name="sale_price" label="Precio de venta (Bs)" type="decimal" :value="$product->sale_price" required />
+                    <x-admin.field name="cost_price" label="Precio de costo (Bs)" type="decimal" :value="$product->exists ? $product->cost_price : null" />
                     <x-admin.field name="barcode" label="Código de barras" :value="$product->barcode" />
                     <x-admin.field name="family" label="Familia" :value="$product->family" />
                     <x-admin.field name="quantity" label="Cantidad por venta" type="decimal" :value="$product->quantity" help="Unidades que agrega cada toque." />

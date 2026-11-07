@@ -6,6 +6,7 @@ use App\Admin\CatalogImport;
 use App\Admin\Catalogs;
 use App\Http\Controllers\Controller;
 use App\Models\Branch;
+use App\Support\SpreadsheetFile;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -95,7 +96,7 @@ class CatalogController extends Controller
     public function import(Request $request, string $catalog): RedirectResponse
     {
         $def = $this->importable($catalog);
-        $request->validate(['file' => 'required|file|max:5120|extensions:'.implode(',', CatalogImport::EXTENSIONS)], [], ['file' => 'archivo']);
+        $request->validate(['file' => 'required|file|max:5120|extensions:'.implode(',', SpreadsheetFile::EXTENSIONS)], [], ['file' => 'archivo']);
         $count = CatalogImport::run($def, $request->file('file'));
 
         return redirect()->route('admin.catalogs.index', $catalog)

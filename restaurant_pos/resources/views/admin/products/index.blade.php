@@ -27,9 +27,19 @@
         </div>
         <button class="btn-secondary"><i class="fa fa-search"></i> Buscar</button>
         @can('products.create')
-        <a href="{{ route('admin.products.create') }}" class="btn-primary ml-auto"><i class="fa fa-plus"></i> Nuevo producto</a>
+            <div class="ml-auto flex flex-wrap gap-2">
+                <button type="button" class="btn-secondary" x-data @click="$dispatch('open-import')"><i class="fa fa-upload"></i> Carga masiva</button>
+                <a href="{{ route('admin.products.create') }}" class="btn-primary"><i class="fa fa-plus"></i> Nuevo producto</a>
+            </div>
         @endcan
     </form>
+
+    @can('products.create')
+        <x-admin.import-modal title="Carga masiva de productos" singular="producto"
+                              :columns="\App\Admin\ProductImport::columns()"
+                              :action="route('admin.products.import')"
+                              :template="route('admin.products.import.template')" />
+    @endcan
 
     <div class="card overflow-x-auto">
         <table class="data-table">

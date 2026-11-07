@@ -2,18 +2,22 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Admin\ProductImport;
 use App\Http\Controllers\Controller;
 use App\Models\Branch;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\ReportGroup;
 use App\Models\Supply;
+use App\Services\Products\BranchSettings;
+use App\Support\SpreadsheetFile;
 use App\Support\Tenant;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * Productos del menú con su configuración por sucursal, opciones, receta y grupos de reporte.
@@ -61,6 +65,20 @@ class ProductController extends Controller
         return redirect()->route('admin.products.edit', $product)->with('ok', 'Producto creado.');
     }
 
+    public function importTemplate(): StreamedResponse
+    {
+        return ProductImport::template();
+    }
+
+    public function import(Request $request): RedirectResponse
+    {
+        $request->validate(['file' => 'required|file|max:5120|extensions:'.implode(',', SpreadsheetFile::EXTENSIONS)], [], ['file' => 'archivo']);
+        $count = ProductImport::run($request->file('file'));
+
+        return redirect()->route('admin.products.index')
+            ->with('ok', 'Carga masiva completada: '.($count === 1 ? '1 producto creado.' : "{$count} productos creados."));
+    }
+
     public function edit(Product $product): View
     {
         return $this->form($product->load(['branches', 'options', 'recipe', 'groups']));
@@ -105,6 +123,7 @@ class ProductController extends Controller
             'product_name' => ['required', 'string', 'max:70', Tenant::unique('products', 'product_name')->ignore($product->id)],
             'category_id' => ['required', Tenant::exists('categories')],
             'sale_price' => ['required', 'numeric', 'min:0'],
+            'cost_price' => ['nullable', 'numeric', 'min:0'],
             'quantity' => ['nullable', 'numeric', 'gt:0'],
             'unit_factor' => ['nullable', 'numeric', 'gt:0'],
             'barcode' => ['nullable', 'string', 'max:30', Tenant::unique('products', 'barcode')->ignore($product->id)],
@@ -135,6 +154,7 @@ class ProductController extends Controller
             'product_name' => 'nombre',
             'category_id' => 'categoría',
             'sale_price' => 'precio de venta',
+            'cost_price' => 'precio de costo',
             'barcode' => 'código de barras',
             'recipe.*.supply_id' => 'insumo de la receta',
             'recipe.*.quantity' => 'cantidad de la receta',
@@ -147,6 +167,7 @@ class ProductController extends Controller
                 'product_name' => mb_strtoupper(trim($data['product_name'])),
                 'category_id' => $data['category_id'],
                 'sale_price' => $data['sale_price'],
+                'cost_price' => $data['cost_price'] ?? 0,
                 'quantity' => $data['quantity'] ?? 1,
                 'unit_factor' => $data['unit_factor'] ?? 1,
                 'barcode' => $data['barcode'] ?? null,
@@ -170,7 +191,7 @@ class ProductController extends Controller
             $product->save();
             $product->updateQuietly(['product_code' => $product->id]);
 
-            $this->saveBranches($product, $data['branches'] ?? []);
+            BranchSettings::save($product, $data['branches'] ?? []);
 
             $product->options()->delete();
             foreach (array_filter(array_map('trim', preg_split('/\R/', (string) ($data['options'] ?? '')))) as $option_name) {
@@ -189,40 +210,5 @@ class ProductController extends Controller
 
             return $product;
         });
-    }
-
-    private function saveBranches(Product $product, array $branches): void
-    {
-        foreach ($branches as $branchId => $config) {
-            $existing = $product->branches()->where('branch_id', $branchId)->first();
-
-            if (empty($config['enabled'])) {
-                $existing?->delete();
-
-                continue;
-            }
-
-            $days = $config['days'] ?? [];
-            $printers = $config['printers'] ?? [];
-            $price = ($config['sale_price'] ?? '') !== '' && $config['sale_price'] !== null ? $config['sale_price'] : $product->sale_price;
-
-            $values = [
-                'category_id' => $product->category_id,
-                'sale_price' => $price,
-                'regular_price' => $price,
-                'wholesale_price' => $config['wholesale_price'] ?? null,
-                'start_time' => ($config['start_time'] ?? null) ?: '00:00',
-                'end_time' => ($config['end_time'] ?? null) ?: '00:00',
-                'expires_on' => ($config['expires_on'] ?? null) ?: '2999-12-29',
-            ];
-            foreach (array_keys(self::DAYS) as $day_code) {
-                $values[$day_code] = in_array($day_code, $days, true) ? 'x' : '';
-            }
-            foreach (array_keys(self::PRINTERS) as $printer) {
-                $values[$printer] = in_array($printer, $printers, true) ? 'x' : '';
-            }
-
-            $product->branches()->updateOrCreate(['branch_id' => $branchId], $values);
-        }
     }
 }

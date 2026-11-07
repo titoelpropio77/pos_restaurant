@@ -35,6 +35,8 @@ use Illuminate\Database\Eloquent\Model;
  *  - eliminar:  'borrar' o 'status:VALUE' (baja lógica)
  *  - consulta:  ajuste de la consulta del listado
  *  - despues:   acción luego de guardar (fn (Model $modelo, bool $nuevo))
+ *  - sequence:  campo de orden opcional: vacío al crear queda al final (por sucursal si 'branch'); al editar no cambia
+ *  - import:    carga masiva desde CSV (ver App\Admin\CatalogImport)
  */
 class Catalogs
 {
@@ -53,6 +55,7 @@ class Catalogs
                 'description' => 'Botones del menú del POS. El orden define la posición en pantalla.',
                 'search' => ['group_name'],
                 'order_number' => ['order_number', 'asc'],
+                'sequence' => 'order_number',
                 'columns' => [
                     'group_name' => ['Nombre', 'text'],
                     'color' => ['Color', 'color'],
@@ -64,11 +67,26 @@ class Catalogs
                 'fields' => [
                     'group_name' => ['Nombre', 'text', 'required|string|max:60', 'width' => 'sm:col-span-2'],
                     'color' => ['Color del botón', 'color', 'nullable|string|max:15'],
-                    'order_number' => ['Orden', 'number', 'nullable|integer|min:0'],
+                    'order_number' => ['Orden', 'number', 'nullable|integer|min:0', 'help' => 'Opcional. Si lo deja vacío, queda al final.'],
                     'status' => ['Estado', 'select', 'required|in:ACTIVE,INACTIVE', $statuses],
                 ],
                 'delete' => 'status:INACTIVE',
                 'after' => fn (Model $m) => $m->updateQuietly(['group_code' => (string) $m->id, 'category_group' => $m->id]),
+                'import' => [
+                    'columns' => ['nombre' => 'group_name', 'color' => 'color', 'orden' => 'order_number', 'estado' => 'status'],
+                    'defaults' => ['status' => 'ACTIVE'],
+                    'unique' => 'group_name',
+                    'help' => [
+                        'nombre' => 'Obligatorio, hasta 60 caracteres. No puede repetir una categoría existente.',
+                        'color' => 'Opcional, en hexadecimal (#d9534f).',
+                        'orden' => 'Opcional, número entero: posición del botón en el POS. Vacío: al final.',
+                        'estado' => 'Opcional: Activo o Inactivo (por defecto Activo).',
+                    ],
+                    'example' => [
+                        ['SOPAS', '#d9534f', 4, 'Activo'],
+                        ['JUGOS', '#337ab7', 5, 'Activo'],
+                    ],
+                ],
             ],
 
             'report_groups' => [
@@ -79,6 +97,7 @@ class Catalogs
                 'description' => 'Agrupan productos para contar unidades en los reportes (p. ej. presas de pollo vendidas).',
                 'search' => ['group_name', 'group_code'],
                 'order_number' => ['order_number', 'asc'],
+                'sequence' => 'order_number',
                 'columns' => [
                     'group_code' => ['Código', 'text'],
                     'group_name' => ['Nombre', 'text'],
@@ -89,7 +108,7 @@ class Catalogs
                 'fields' => [
                     'group_code' => ['Código', 'text', 'nullable|string|max:10'],
                     'group_name' => ['Nombre', 'text', 'required|string|max:30'],
-                    'order_number' => ['Orden', 'number', 'nullable|integer|min:0'],
+                    'order_number' => ['Orden', 'number', 'nullable|integer|min:0', 'help' => 'Opcional. Si lo deja vacío, queda al final.'],
                 ],
                 'delete' => 'delete',
             ],
@@ -132,6 +151,7 @@ class Catalogs
                 'description' => 'Mesas del salón de cada sucursal, en el orden en que aparecen en el POS.',
                 'search' => ['table_number'],
                 'order_number' => ['order_number', 'asc'],
+                'sequence' => 'order_number',
                 'branch' => true,
                 'columns' => [
                     'table_number' => ['Mesa', 'text'],
@@ -144,7 +164,7 @@ class Catalogs
                 'fields' => [
                     'table_number' => ['Número / nombre', 'text', 'required|string|max:10'],
                     'branch_id' => ['Sucursal', 'select', 'required|'.Tenant::exists('branches'), $branches],
-                    'order_number' => ['Orden', 'number', 'nullable|integer|min:0'],
+                    'order_number' => ['Orden', 'number', 'nullable|integer|min:0', 'help' => 'Opcional. Si lo deja vacío, queda al final.'],
                     'status' => ['Estado', 'select', 'required|in:ACTIVE,INACTIVE', $statuses],
                 ],
                 'delete' => 'status:DELETED',

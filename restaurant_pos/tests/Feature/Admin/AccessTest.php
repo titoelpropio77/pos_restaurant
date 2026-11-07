@@ -78,6 +78,9 @@ class AccessTest extends AdminTestCase
 
         $this->get(route('admin.catalogs.index', 'categories'))->assertOk()->assertDontSee(route('admin.catalogs.create', 'categories'));
         $this->get(route('admin.catalogs.create', 'categories'))->assertForbidden();
+        $this->get(route('admin.catalogs.index', 'categories'))->assertDontSee('Carga masiva');
+        $this->get(route('admin.catalogs.import.template', 'categories'))->assertForbidden();
+        $this->post(route('admin.catalogs.import', 'categories'))->assertForbidden();
         $this->get(route('admin.catalogs.index', 'suppliers'))->assertForbidden();
     }
 

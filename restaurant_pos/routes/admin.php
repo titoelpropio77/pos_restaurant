@@ -69,6 +69,8 @@ Route::middleware('permission:reports.view')->group(function () {
 // Catálogos simples: CatalogController exige catalogs.{catalogo}.{accion}
 Route::get('catalogs/{catalog}', [CatalogController::class, 'index'])->name('catalogs.index');
 Route::get('catalogs/{catalog}/create', [CatalogController::class, 'create'])->name('catalogs.create');
+Route::get('catalogs/{catalog}/import/template', [CatalogController::class, 'importTemplate'])->name('catalogs.import.template');
+Route::post('catalogs/{catalog}/import', [CatalogController::class, 'import'])->name('catalogs.import');
 Route::post('catalogs/{catalog}', [CatalogController::class, 'store'])->name('catalogs.store');
 Route::get('catalogs/{catalog}/{id}/edit', [CatalogController::class, 'edit'])->name('catalogs.edit');
 Route::put('catalogs/{catalog}/{id}', [CatalogController::class, 'update'])->name('catalogs.update');

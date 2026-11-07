@@ -126,4 +126,16 @@ class ProductTest extends AdminTestCase
 
         $this->assertSame('INACTIVE', $product->fresh()->status);
     }
+
+    public function test_editing_keeps_the_hidden_family(): void
+    {
+        $product = Product::firstOrFail();
+        $product->update(['family' => 'CARNES']);
+
+        $this->put(route('admin.products.update', $product), $this->data(['product_name' => $product->product_name]))
+            ->assertSessionHasNoErrors();
+
+        $this->assertSame('CARNES', $product->fresh()->family);
+        $this->get(route('admin.products.edit', $product))->assertDontSee('name="family"', false);
+    }
 }

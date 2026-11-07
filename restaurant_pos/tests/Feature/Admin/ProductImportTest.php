@@ -29,9 +29,9 @@ class ProductImportTest extends AdminTestCase
 
         $this->get(route('admin.products.index'))->assertSee('Carga masiva');
         $this->post(route('admin.products.import'), ['file' => $this->excel([
-            ['Nombre', 'Categoría', 'Precio', 'Precio de costo', 'Código de barras', 'Familia', 'Cantidad', 'Color', 'Estado', 'Sucursales', 'Imprime en'],
-            ['Chairo', 'platos', 25.5, 12.25, '7771234567890', 'SOPAS', null, '#ff0000', 'Inactivo', 'norte', 'Cocina, Punto 1'],
-            ['Mocochinchi', 'BEBIDAS', 6, null, null, null, null, null, null, null, null],
+            ['Nombre', 'Categoría', 'Precio', 'Precio de costo', 'Código de barras', 'Cantidad', 'Color', 'Estado', 'Sucursales', 'Imprime en'],
+            ['Chairo', 'platos', 25.5, 12.25, '7771234567890', null, '#ff0000', 'Inactivo', 'norte', 'Cocina, Punto 1'],
+            ['Mocochinchi', 'BEBIDAS', 6, null, null, null, null, null, null, null],
         ])])
             ->assertSessionHasNoErrors()
             ->assertRedirect(route('admin.products.index'))

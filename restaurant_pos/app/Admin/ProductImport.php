@@ -37,7 +37,6 @@ class ProductImport
             'precio' => 'Obligatorio: precio de venta en Bs (por ejemplo 38 o 38.50).',
             'precio_de_costo' => 'Opcional: precio de costo en Bs (por defecto 0).',
             'codigo_de_barras' => 'Opcional, hasta 30 caracteres. No puede repetirse.',
-            'familia' => 'Opcional, hasta 20 caracteres.',
             'cantidad' => 'Opcional: unidades que agrega cada toque en el POS (por defecto 1).',
             'color' => 'Opcional: color del botón en hexadecimal (por defecto #337ab7).',
             'estado' => 'Opcional: Activo o Inactivo (por defecto Activo).',
@@ -52,8 +51,8 @@ class ProductImport
         $category = $categories[0] ?? 'PLATOS';
 
         return SpreadsheetFile::template('plantilla-productos', 'Productos', static::columns(), [
-            ['MILANESA DE POLLO', $category, 38, 22.5, '', '', 1, '#d9534f', 'Activo', '', 'Cocina'],
-            ['SOPA DE MANÍ', $category, 15.5, '', '', '', 1, '', '', '', ''],
+            ['MILANESA DE POLLO', $category, 38, 22.5, '', 1, '#d9534f', 'Activo', '', 'Cocina'],
+            ['SOPA DE MANÍ', $category, 15.5, '', '', 1, '', '', '', ''],
         ], [
             'categoria' => $categories,
             'estado' => array_values(self::STATUSES),
@@ -90,7 +89,6 @@ class ProductImport
                 'sale_price' => static::number($cells['precio'] ?? ''),
                 'cost_price' => ($cells['precio_de_costo'] ?? '') === '' ? 0 : static::number($cells['precio_de_costo']),
                 'barcode' => ($cells['codigo_de_barras'] ?? '') ?: null,
-                'family' => ($cells['familia'] ?? '') ?: null,
                 'quantity' => ($cells['cantidad'] ?? '') === '' ? 1 : static::number($cells['cantidad']),
                 'color' => ($cells['color'] ?? '') ?: '#337ab7',
                 'status' => static::status($cells['estado'] ?? ''),
@@ -101,7 +99,6 @@ class ProductImport
                 'sale_price' => 'required|numeric|min:0',
                 'cost_price' => 'numeric|min:0',
                 'barcode' => 'nullable|string|max:30',
-                'family' => 'nullable|string|max:20',
                 'quantity' => 'numeric|gt:0',
                 'color' => 'string|max:40',
                 'status' => 'required|in:ACTIVE,INACTIVE',
@@ -110,7 +107,6 @@ class ProductImport
                 'sale_price' => 'precio',
                 'cost_price' => 'precio de costo',
                 'barcode' => 'código de barras',
-                'family' => 'familia',
                 'quantity' => 'cantidad',
                 'status' => 'estado',
             ]);

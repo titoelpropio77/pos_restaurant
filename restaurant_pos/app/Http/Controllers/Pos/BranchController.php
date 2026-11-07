@@ -9,6 +9,7 @@ use App\Models\Staff;
 use App\Services\CashRegister\CashSessions;
 use App\Support\PosContext;
 use App\Support\PosResponse;
+use App\Support\Tenant;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -71,6 +72,10 @@ class BranchController extends Controller
      */
     public function verifyAuthorization(Request $request): JsonResponse
     {
+        if (! Tenant::option('billing')) {
+            return PosResponse::ok('');
+        }
+
         $date = Carbon::parse($request->input('date', today()));
         $authorization = BillingAuthorization::currentFor($this->pos->branchId());
         $days = $authorization?->daysUntilExpiry($date);

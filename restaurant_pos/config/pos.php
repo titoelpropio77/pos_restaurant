@@ -40,6 +40,10 @@ return [
 
         // cambiofecha.txt: permite cambiar la fecha de venta desde el POS
         'change_date' => env('POS_CAMBIO_FECHA', false),
+
+        // Facturación SIN: exige dosificación vigente para vender y genera el código de control.
+        // Desactivada, el POS vende sin dosificación (las ventas quedan sin código de control).
+        'billing' => env('POS_FACTURACION', true),
     ],
 
     // Producto ficticio usado para la "atención" en mesas de billar

@@ -48,8 +48,9 @@
         <section class="card p-6">
             <h2 class="mb-2 font-bold">Opciones del POS</h2>
             <div class="grid gap-x-4 sm:grid-cols-2">
-                @foreach (\App\Models\Restaurant::OPTIONS as $key => [$text])
-                    <x-field :name="'options['.$key.']'" :label="$text" type="checkbox" :value="$restaurant->options[$key] ?? false" />
+                @foreach (\App\Models\Restaurant::OPTIONS as $key => [$text, $initial])
+                    {{-- Una opción que el restaurante aún no guardó muestra su valor inicial --}}
+                    <x-field :name="'options['.$key.']'" :label="$text" type="checkbox" :value="$restaurant->options[$key] ?? $initial" />
                 @endforeach
             </div>
         </section>

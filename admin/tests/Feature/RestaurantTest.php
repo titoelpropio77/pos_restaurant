@@ -177,6 +177,26 @@ class RestaurantTest extends AdminTestCase
         }
 
         $response->assertSee('id="fieldoptions_daily_close_" name="options[daily_close]" value="1" checked', false);
+        // Opción aún no guardada: muestra su valor inicial (la facturación viene marcada)
+        $response->assertSee('id="fieldoptions_billing_" name="options[billing]" value="1" checked', false);
+        $response->assertDontSee('id="fieldoptions_billiards_" name="options[billiards]" value="1" checked', false);
+    }
+
+    public function test_billing_can_be_turned_off(): void
+    {
+        $restaurant = $this->create();
+
+        $this->put(route('restaurants.update', $restaurant), [
+            'name' => 'La Paceña', 'status' => 'ACTIVE', 'options' => ['daily_close' => 1],
+            'partners' => $restaurant->partners()->pluck('users.id')->all(),
+        ])->assertSessionHasNoErrors();
+        $this->assertFalse($restaurant->fresh()->options['billing']);
+
+        $this->put(route('restaurants.update', $restaurant), [
+            'name' => 'La Paceña', 'status' => 'ACTIVE', 'options' => ['billing' => 1],
+            'partners' => $restaurant->partners()->pluck('users.id')->all(),
+        ])->assertSessionHasNoErrors();
+        $this->assertTrue($restaurant->fresh()->options['billing']);
     }
 
     public function test_saves_the_options_of_pos_by_restaurant(): void

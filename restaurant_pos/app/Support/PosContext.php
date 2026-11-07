@@ -34,13 +34,13 @@ class PosContext
     }
 
     /**
-     * Cambia la sucursal de trabajo; exige que tenga dosificación registrada.
+     * Cambia la sucursal de trabajo; con facturación SIN exige que tenga dosificación registrada.
      */
     public function changeBranch(Branch $branch, ?int $warehouseId = null): void
     {
         $authorization = BillingAuthorization::currentFor($branch->id);
 
-        if (! $authorization) {
+        if (! $authorization && Tenant::option('billing')) {
             throw new PosException('NO HAY DOSIFICACIÓN PARA ESTA SUCURSAL');
         }
 
@@ -50,9 +50,9 @@ class PosContext
             'branch_id' => $branch->id,
             'branch_name' => $branch->name,
             'default_warehouse_id' => $warehouseId,
-            'time_start_morning' => substr((string) $authorization->morning_start, 0, 5),
-            'time_end_morning' => substr((string) $authorization->morning_end, 0, 5),
-            'restaurant' => $authorization->business_name,
+            'time_start_morning' => substr((string) ($authorization?->morning_start ?? '06:00'), 0, 5),
+            'time_end_morning' => substr((string) ($authorization?->morning_end ?? '16:00'), 0, 5),
+            'restaurant' => $authorization?->business_name ?? $branch->restaurant?->name ?? $branch->name,
             'daily_order' => InvoiceSequence::forSales($branch->id)?->daily_order ?? 0,
         ]));
     }

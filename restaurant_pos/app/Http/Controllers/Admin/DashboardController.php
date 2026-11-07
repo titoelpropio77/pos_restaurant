@@ -10,6 +10,7 @@ use App\Models\Expense;
 use App\Models\Sale;
 use App\Models\SaleItem;
 use App\Models\Supply;
+use App\Support\Tenant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -74,7 +75,7 @@ class DashboardController extends Controller
                 ->get()
                 ->filter(fn ($i) => (float) $i->stock_total <= (float) $i->min_stock && (float) $i->min_stock > 0)
                 ->take(8),
-            'authorizations' => Branch::where('status', 'ACTIVE')->get()
+            'authorizations' => ! Tenant::option('billing') ? collect() : Branch::where('status', 'ACTIVE')->get()
                 ->map(fn ($s) => [$s, BillingAuthorization::currentFor($s->id)?->daysUntilExpiry(today())])
                 ->filter(fn ($d) => $d[1] === null || $d[1] <= config('pos.days_warning_authorization')),
             'tablesOccupied' => DiningTable::where('occupied', 'S')->when($branchId, fn ($q) => $q->where('branch_id', $branchId))->count(),

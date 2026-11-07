@@ -23,6 +23,7 @@ class Restaurant extends Model
         'without_view_employee' => ['Ocultar vista de empleado', true],
         'print_cloud' => ['Impresión en la nube', false],
         'change_date' => ['Permitir cambiar la fecha de venta', false],
+        'billing' => ['Facturación SIN (exige dosificación vigente para vender)', true],
     ];
 
     protected $table = 'restaurants';

@@ -82,4 +82,10 @@ class Tenant
 
         return array_replace(config('pos.options'), is_array($own) ? $own : []);
     }
+
+    /** Una opción del POS del restaurante (ver options()). */
+    public static function option(string $key): bool
+    {
+        return (bool) (self::options()[$key] ?? false);
+    }
 }

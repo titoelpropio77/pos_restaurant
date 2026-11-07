@@ -12,6 +12,7 @@ use App\Services\Billing\ControlCode;
 use App\Services\CashRegister\CashSessions;
 use App\Services\StockMovement\SupplyConsumption;
 use App\Support\PosContext;
+use App\Support\Tenant;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -42,9 +43,13 @@ class RegisterSale
         $tax_id = trim((string) ($data['customerTaxId'] ?? ''));
         $totalBs = (float) $data['totalBs'];
 
-        $authorization = BillingAuthorization::currentFor($branchId);
-        if (! $authorization || $authorization->daysUntilExpiry($date) < 0) {
-            throw new PosException('SU DOSIFICACIÓN YA SE VENCIÓ, NO PODRÁ VENDER');
+        // Sin facturación SIN la venta no usa la dosificación ni lleva código de control
+        $authorization = null;
+        if (Tenant::option('billing')) {
+            $authorization = BillingAuthorization::currentFor($branchId);
+            if (! $authorization || $authorization->daysUntilExpiry($date) < 0) {
+                throw new PosException('SU DOSIFICACIÓN YA SE VENCIÓ, NO PODRÁ VENDER');
+            }
         }
 
         return DB::transaction(function () use ($data, $user, $branchId, $date, $time, $tax_id, $totalBs, $authorization) {
@@ -59,16 +64,19 @@ class RegisterSale
 
             $number = $this->numbering->next($branchId, $tax_id, $data['paymentMethod']);
 
-            $controlCode = $this->controlCode->generate(
-                (string) $authorization->authorization_number,
-                (string) $number['invoice_printed'],
-                $tax_id === '' ? '0' : $tax_id,
-                str_replace('-', '', $date),
-                (string) $totalBs,
-                (string) $authorization->auth_key,
-            );
+            $controlCode = '';
+            if ($authorization) {
+                $controlCode = $this->controlCode->generate(
+                    (string) $authorization->authorization_number,
+                    (string) $number['invoice_printed'],
+                    $tax_id === '' ? '0' : $tax_id,
+                    str_replace('-', '', $date),
+                    (string) $totalBs,
+                    (string) $authorization->auth_key,
+                );
 
-            $authorization->update(['current_invoice' => $number['folio'], 'current_real_invoice' => $number['invoice_printed']]);
+                $authorization->update(['current_invoice' => $number['folio'], 'current_real_invoice' => $number['invoice_printed']]);
+            }
 
             $prepaid = (string) ($data['selectPrepaid'] ?? '');
 
@@ -101,9 +109,9 @@ class RegisterSale
                 'customer_tax_id' => $tax_id === '' ? '0' : $tax_id,
                 'customer_id_number' => '0',
                 'customer_name' => $data['nameCustomer'] ?? 'SIN NOMBRE',
-                'auth_key' => $authorization->auth_key,
-                'authorization_number' => $authorization->authorization_number,
-                'limit_date' => $authorization->limit_date,
+                'auth_key' => $authorization?->auth_key,
+                'authorization_number' => $authorization?->authorization_number,
+                'limit_date' => $authorization?->limit_date,
                 'control_code' => $controlCode,
                 'prepaid_balance' => $prepaid === '0' || $prepaid === '' ? null : $totalBs,
                 'orders_ref' => '0',

@@ -5,11 +5,14 @@ namespace Tests\Feature\Pos;
 use App\Admin\Reports\DailySales;
 use App\Admin\Reports\Filters;
 use App\Models\BillingAuthorization;
+use App\Models\Branch;
 use App\Models\InvoiceSequence;
 use App\Models\Product;
+use App\Models\Restaurant;
 use App\Models\Sale;
 use App\Models\WarehouseStock;
 use App\Services\CashRegister\CashCount;
+use App\Support\PosContext;
 
 class SaleTest extends PosTestCase
 {
@@ -123,6 +126,26 @@ class SaleTest extends PosTestCase
 
         $this->assertSame('SU DOSIFICACIÓN YA SE VENCIÓ, NO PODRÁ VENDER', $response['error']);
         $this->assertDatabaseCount('sales', 0);
+    }
+
+    public function test_without_billing_sells_without_authorization(): void
+    {
+        BillingAuthorization::first()->update(['limit_date' => today()->subDay()]);
+        Restaurant::firstOrFail()->update(['options' => ['billing' => false]]);
+
+        $this->assertSame('', $this->ajax('get', 'pos.branch.authorization.verify', ['date' => today()->toDateString()])->json('result'));
+
+        $response = $this->sell(['FLAN' => 1]);
+
+        $this->assertSame('', $response['error']);
+        $sale = Sale::findOrFail($response['result']);
+        $this->assertSame('', (string) $sale->control_code);
+        $this->assertNull($sale->authorization_number);
+
+        // Tampoco la exige al cambiar de sucursal
+        BillingAuthorization::query()->delete();
+        app(PosContext::class)->changeBranch(Branch::firstOrFail());
+        $this->assertSame('', $this->sell(['FLAN' => 1])['error']);
     }
 
     public function test_validates_the_data_of_the_sale(): void

@@ -43,11 +43,14 @@ class RegisterSale
         $tax_id = trim((string) ($data['customerTaxId'] ?? ''));
         $totalBs = (float) $data['totalBs'];
 
-        // Sin facturación SIN la venta no usa la dosificación ni lleva código de control
+        // Sin facturación SIN, o con la dosificación de la sucursal desactivada, la venta es una nota de venta:
+        // no usa la dosificación ni lleva código de control
         $authorization = null;
         if (Tenant::option('billing')) {
             $authorization = BillingAuthorization::currentFor($branchId);
-            if (! $authorization || $authorization->daysUntilExpiry($date) < 0) {
+            if ($authorization && ! $authorization->isActive()) {
+                $authorization = null;
+            } elseif (! $authorization || $authorization->daysUntilExpiry($date) < 0) {
                 throw new PosException('SU DOSIFICACIÓN YA SE VENCIÓ, NO PODRÁ VENDER');
             }
         }

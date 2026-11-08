@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Pos;
 
+use App\Models\BillingAuthorization;
 use App\Models\Branch;
 use App\Models\BranchProduct;
 use App\Models\DiningTable;
@@ -163,6 +164,21 @@ class PrintTest extends PosTestCase
             ->assertDontSee('COPIA');
 
         $this->get(route('pos.print.receipt', ['sale' => $sale->id, 'copy' => 1]))->assertSee('*** COPIA ***');
+    }
+
+    public function test_with_the_authorization_deactivated_prints_a_sales_note(): void
+    {
+        BillingAuthorization::first()->update(['inactive' => true]);
+        $sale = Sale::findOrFail($this->sell('SILPANCHO', ['nameCustomer' => 'ANA ROJAS', 'customerTaxId' => '1234567']));
+
+        $this->get(route('pos.print.receipt', ['sale' => $sale->id]))
+            ->assertOk()
+            ->assertSee('NOTA DE VENTA')
+            ->assertSee('Este documento no es una factura')
+            ->assertDontSee('FACTURA')
+            ->assertDontSee('Código de control')
+            ->assertDontSee('Autorización')
+            ->assertDontSee('<svg', false);
     }
 
     public function test_the_invoice_with_billing_has_control_code_and_qr(): void

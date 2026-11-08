@@ -33,6 +33,9 @@
             @if ($authorization->exists)
                 <x-admin.field name="new" label="Registrar como nueva dosificación" type="checkbox" :value="false" />
             @endif
+            {{-- Apagada, la sucursal vende con nota de venta: sin código de control, NIT ni QR, y sin avisos de vencimiento --}}
+            <x-admin.field name="active" label="Dosificación activa: las ventas salen como factura (apagada, como nota de venta)" type="checkbox"
+                           :value="! $authorization->inactive" class="sm:col-span-4" />
         </div>
     </section>
 

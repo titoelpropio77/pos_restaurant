@@ -128,6 +128,21 @@ class SaleTest extends PosTestCase
         $this->assertDatabaseCount('sales', 0);
     }
 
+    public function test_a_deactivated_authorization_sells_with_a_sales_note(): void
+    {
+        // Ni siquiera vencida bloquea: desactivada no se factura
+        BillingAuthorization::first()->update(['inactive' => true, 'limit_date' => today()->subDay()]);
+
+        $this->assertSame('', $this->ajax('get', 'pos.branch.authorization.verify', ['date' => today()->toDateString()])->json('result'));
+
+        $response = $this->sell(['FLAN' => 1]);
+
+        $this->assertSame('', $response['error']);
+        $sale = Sale::findOrFail($response['result']);
+        $this->assertSame('', (string) $sale->control_code);
+        $this->assertNull($sale->authorization_number);
+    }
+
     public function test_without_billing_sells_without_authorization(): void
     {
         BillingAuthorization::first()->update(['limit_date' => today()->subDay()]);

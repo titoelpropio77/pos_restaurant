@@ -19,6 +19,8 @@
                         <td>
                             @if (! $row['authorization'])
                                 <span class="badge bg-red-100 text-red-700"><i class="fa fa-exclamation-triangle"></i> Sin dosificación</span>
+                            @elseif (! $row['authorization']->isActive())
+                                <span class="badge bg-slate-100 text-muted"><i class="fa fa-pause-circle"></i> Desactivada · nota de venta</span>
                             @else
                                 {{ $row['authorization']->limit_date?->format('d/m/Y') }}
                                 @if ($row['days'] < 0)

@@ -78,7 +78,8 @@ class BranchController extends Controller
 
         $date = Carbon::parse($request->input('date', today()));
         $authorization = BillingAuthorization::currentFor($this->pos->branchId());
-        $days = $authorization?->daysUntilExpiry($date);
+        // Desactivada no se factura: su vencimiento no importa
+        $days = $authorization?->isActive() ? $authorization->daysUntilExpiry($date) : null;
 
         if ($days === null) {
             return PosResponse::ok('');

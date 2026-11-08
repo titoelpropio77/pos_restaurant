@@ -52,7 +52,17 @@ class BillingAuthorization extends Model
         return [
             'authorization_date' => 'date:Y-m-d',
             'limit_date' => 'date:Y-m-d',
+            'inactive' => 'boolean',
         ];
+    }
+
+    /**
+     * Desactivada, la sucursal vende con nota de venta (sin código de control) aunque el restaurante
+     * tenga la facturación SIN encendida.
+     */
+    public function isActive(): bool
+    {
+        return ! $this->inactive;
     }
 
     public function branch(): BelongsTo

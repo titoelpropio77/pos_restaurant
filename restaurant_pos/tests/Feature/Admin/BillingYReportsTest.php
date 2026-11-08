@@ -49,6 +49,29 @@ class BillingYReportsTest extends AdminTestCase
         $this->assertSame(501, $this->sell('4189179011')->invoice_number);
     }
 
+    public function test_the_authorization_can_be_deactivated_and_reactivated(): void
+    {
+        $branch = Branch::first();
+        $current = BillingAuthorization::currentFor($branch->id);
+        $data = [
+            'business_name' => $current->business_name, 'tax_id' => $current->tax_id, 'authorization_number' => $current->authorization_number,
+            'auth_key' => $current->auth_key, 'limit_date' => today()->addMonths(6)->toDateString(),
+            'morning_start' => '07:00', 'morning_end' => '15:00', 'folio' => 10, 'real_folio' => 10,
+        ];
+
+        $this->assertTrue($current->isActive());
+        $this->get(route('admin.billing.edit', $branch))->assertOk()->assertSee('name="active"', false);
+
+        $this->put(route('admin.billing.update', $branch), $data + ['active' => 0])->assertSessionHasNoErrors();
+        $this->assertFalse($current->fresh()->isActive());
+        $this->get(route('admin.billing.index'))->assertSee('Desactivada');
+        $this->assertSame('', (string) $this->sell()->control_code);
+
+        $this->put(route('admin.billing.update', $branch), $data + ['active' => 1])->assertSessionHasNoErrors();
+        $this->assertTrue($current->fresh()->isActive());
+        $this->assertNotSame('', (string) $this->sell()->control_code);
+    }
+
     public function test_rejects_a_key_with_characters_invalid(): void
     {
         $this->put(route('admin.billing.update', Branch::first()), [

@@ -76,7 +76,10 @@ class DashboardController extends Controller
                 ->filter(fn ($i) => (float) $i->stock_total <= (float) $i->min_stock && (float) $i->min_stock > 0)
                 ->take(8),
             'authorizations' => ! Tenant::option('billing') ? collect() : Branch::where('status', 'ACTIVE')->get()
-                ->map(fn ($s) => [$s, BillingAuthorization::currentFor($s->id)?->daysUntilExpiry(today())])
+                ->map(fn ($s) => [$s, $a = BillingAuthorization::currentFor($s->id), $a?->daysUntilExpiry(today())])
+                // Una dosificación desactivada no avisa: la sucursal vende con nota de venta
+                ->reject(fn ($d) => $d[1] && ! $d[1]->isActive())
+                ->map(fn ($d) => [$d[0], $d[2]])
                 ->filter(fn ($d) => $d[1] === null || $d[1] <= config('pos.days_warning_authorization')),
             'tablesOccupied' => DiningTable::where('occupied', 'S')->when($branchId, fn ($q) => $q->where('branch_id', $branchId))->count(),
         ]);

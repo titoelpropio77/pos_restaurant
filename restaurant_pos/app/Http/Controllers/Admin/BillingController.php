@@ -59,6 +59,7 @@ class BillingController extends Controller
             'legend_1' => ['nullable', 'string', 'max:300'],
             'legend_2' => ['nullable', 'string', 'max:300'],
             'new' => ['boolean'],
+            'active' => ['boolean'],
             'folio' => ['required', 'integer', 'min:0'],
             'real_folio' => ['required', 'integer', 'min:0'],
             'receipt_multiplier' => ['nullable', 'integer', 'min:0'],
@@ -72,7 +73,8 @@ class BillingController extends Controller
         ]);
 
         DB::transaction(function () use ($request, $branch, $data) {
-            $fields = collect($data)->except(['new', 'folio', 'real_folio', 'receipt_multiplier'])->all();
+            $fields = collect($data)->except(['new', 'active', 'folio', 'real_folio', 'receipt_multiplier'])->all()
+                + ['inactive' => ! $request->boolean('active', true)];
             $current = BillingAuthorization::currentFor($branch->id);
 
             // Una nueva dosificación se registra aparte para conservar el historial

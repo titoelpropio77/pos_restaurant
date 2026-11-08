@@ -28,7 +28,28 @@ class Restaurant extends Model
 
     protected $table = 'restaurants';
 
-    protected $fillable = ['name', 'tax_id', 'phone', 'address', 'email', 'web', 'activity', 'status', 'options'];
+    /** Formatos y tamaño máximo (KB) del logo; se guarda en la BD como data URI. */
+    public const LOGO_MIMES = ['png', 'jpg', 'jpeg', 'webp'];
+
+    public const LOGO_MAX_KB = 1024;
+
+    /** Paleta sugerida para el fondo de la tienda (también se admite cualquier color #RRGGBB). */
+    public const BACKGROUND_PALETTE = [
+        '#FAF7F2' => 'Crema',
+        '#FFFFFF' => 'Blanco',
+        '#F1F5F9' => 'Gris claro',
+        '#DCEBF7' => 'Celeste',
+        '#E3F2EA' => 'Menta',
+        '#FBE9D0' => 'Durazno',
+        '#E8961C' => 'Ámbar',
+        '#C8553D' => 'Terracota',
+        '#8C2F39' => 'Vino',
+        '#2E7D5B' => 'Verde',
+        '#4A5468' => 'Gris pizarra',
+        '#14213D' => 'Azul noche',
+    ];
+
+    protected $fillable = ['name', 'tax_id', 'phone', 'address', 'email', 'web', 'activity', 'status', 'options', 'logo', 'background_color'];
 
     protected function casts(): array
     {

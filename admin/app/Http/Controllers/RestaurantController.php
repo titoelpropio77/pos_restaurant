@@ -140,6 +140,13 @@ class RestaurantController extends Controller
             'activity' => ['nullable', 'string', 'max:255'],
             'web' => ['nullable', 'string', 'max:255'],
             'status' => ['required', Rule::in(['ACTIVE', 'INACTIVE'])],
+            'logo' => ['nullable', 'image', 'mimes:'.implode(',', Restaurant::LOGO_MIMES), 'max:'.Restaurant::LOGO_MAX_KB],
+            'remove_logo' => ['boolean'],
+            'background_color' => ['nullable', 'regex:/^#[0-9A-Fa-f]{6}$/'],
+        ], [
+            'background_color.regex' => 'El fondo de la tienda debe ser un color como #FAF7F2.',
+        ], [
+            'background_color' => 'fondo de la tienda',
         ]);
     }
 
@@ -149,8 +156,21 @@ class RestaurantController extends Controller
             ->mapWithKeys(fn ($key) => [$key => $request->boolean("options.{$key}")])
             ->all();
 
-        return ['name' => mb_strtoupper($data['name']), 'options' => $options]
-            + collect($data)->only(['tax_id', 'email', 'phone', 'address', 'activity', 'web', 'status'])->all();
+        $restaurant = [
+            'name' => mb_strtoupper($data['name']),
+            'options' => $options,
+            'background_color' => isset($data['background_color']) ? mb_strtoupper($data['background_color']) : null,
+        ] + collect($data)->only(['tax_id', 'email', 'phone', 'address', 'activity', 'web', 'status'])->all();
+
+        // Sin archivo nuevo el logo actual se conserva, salvo que se pida quitarlo
+        if ($request->hasFile('logo')) {
+            $file = $request->file('logo');
+            $restaurant['logo'] = 'data:'.$file->getMimeType().';base64,'.base64_encode($file->get());
+        } elseif ($request->boolean('remove_logo')) {
+            $restaurant['logo'] = null;
+        }
+
+        return $restaurant;
     }
 
     /** @return list<array{id: int, label: string}> */

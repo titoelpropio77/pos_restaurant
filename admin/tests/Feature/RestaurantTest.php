@@ -8,6 +8,7 @@ use App\Models\PointOfSale;
 use App\Models\Restaurant;
 use App\Models\Role;
 use App\Models\User;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
@@ -292,5 +293,43 @@ class RestaurantTest extends AdminTestCase
         ])->assertSessionHasNoErrors();
 
         $this->assertSame($hash, $owner->fresh()->password);
+    }
+    public function test_saves_the_logo_and_keeps_it_when_editing_without_a_new_file(): void
+    {
+        $restaurant = $this->create(['logo' => UploadedFile::fake()->image('logo.png', 200, 200)]);
+
+        $this->assertStringStartsWith('data:image/png;base64,', $restaurant->logo);
+
+        $partners = $restaurant->partners()->pluck('users.id')->all();
+        $this->put(route('restaurants.update', $restaurant), ['name' => 'La Paceña', 'status' => 'ACTIVE', 'partners' => $partners])->assertSessionHasNoErrors();
+        $this->assertSame($restaurant->logo, $restaurant->fresh()->logo);
+
+        $this->get(route('restaurants.edit', $restaurant))->assertOk()->assertSee('Quitar logo');
+
+        $this->put(route('restaurants.update', $restaurant), ['name' => 'La Paceña', 'status' => 'ACTIVE', 'partners' => $partners, 'remove_logo' => 1])->assertSessionHasNoErrors();
+        $this->assertNull($restaurant->fresh()->logo);
+    }
+
+    public function test_rejects_a_logo_that_is_not_an_image_or_too_big(): void
+    {
+        $this->post(route('restaurants.store'), $this->dataRestaurant(['logo' => UploadedFile::fake()->create('logo.pdf', 10, 'application/pdf')]))
+            ->assertSessionHasErrors('logo');
+        $this->post(route('restaurants.store'), $this->dataRestaurant(['logo' => UploadedFile::fake()->image('logo.png')->size(Restaurant::LOGO_MAX_KB + 1)]))
+            ->assertSessionHasErrors('logo');
+    }
+
+    public function test_saves_the_store_background_from_the_palette_or_a_custom_color(): void
+    {
+        $restaurant = $this->create(['background_color' => '#14213D']);
+        $this->assertSame('#14213D', $restaurant->background_color);
+
+        $partners = $restaurant->partners()->pluck('users.id')->all();
+        $this->put(route('restaurants.update', $restaurant), ['name' => 'La Paceña', 'status' => 'ACTIVE', 'partners' => $partners, 'background_color' => '#a1b2c3'])->assertSessionHasNoErrors();
+        $this->assertSame('#A1B2C3', $restaurant->fresh()->background_color);
+
+        $this->put(route('restaurants.update', $restaurant), ['name' => 'La Paceña', 'status' => 'ACTIVE', 'partners' => $partners, 'background_color' => 'azul'])->assertSessionHasErrors('background_color');
+
+        $this->put(route('restaurants.update', $restaurant), ['name' => 'La Paceña', 'status' => 'ACTIVE', 'partners' => $partners, 'background_color' => ''])->assertSessionHasNoErrors();
+        $this->assertNull($restaurant->fresh()->background_color);
     }
 }

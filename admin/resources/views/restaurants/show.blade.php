@@ -24,6 +24,14 @@
     <div class="grid gap-4 xl:grid-cols-3">
         <section class="card p-5">
             <h2 class="mb-3 font-bold">Datos</h2>
+            @if ($restaurant->logo || $restaurant->background_color)
+                <div class="mb-4 flex h-28 items-center justify-center rounded-xl border border-line p-3" style="background: {{ $restaurant->background_color ?: '#FFFFFF' }}"
+                     title="Fondo de la tienda: {{ $restaurant->background_color ?: 'sin definir' }}">
+                    @if ($restaurant->logo)
+                        <img src="{{ $restaurant->logo }}" class="max-h-full max-w-full object-contain" alt="Logo de {{ $restaurant->name }}">
+                    @endif
+                </div>
+            @endif
             <dl class="space-y-2 text-sm">
                 @foreach (['NIT' => $restaurant->tax_id, 'Propietarios' => $restaurant->partners->pluck('name')->join(', '), 'Correo' => $restaurant->email, 'Teléfono' => $restaurant->phone, 'Dirección' => $restaurant->address, 'Actividad' => $restaurant->activity] as $k => $v)
                     <div class="flex justify-between gap-3"><dt class="text-muted">{{ $k }}</dt><dd class="text-right font-medium">{{ $v ?: '—' }}</dd></div>

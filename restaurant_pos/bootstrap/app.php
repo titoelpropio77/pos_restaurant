@@ -22,6 +22,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
         then: function () {
             Route::middleware(['web', 'admin', 'permission:panel.access'])->prefix('admin')->name('admin.')->group(base_path('routes/admin.php'));
+            // Menú digital público (destino del QR): sin el grupo web, para no abrir una sesión por cada escaneo
+            Route::middleware('throttle:120,1')->group(base_path('routes/menu.php'));
         },
     )
     ->withMiddleware(function (Middleware $middleware): void {

@@ -19,6 +19,7 @@
         ],
         'Menú y ventas' => [
             ['admin.products.index', 'fa-cutlery', 'Productos', 'admin.products.*', 'products.view'],
+            ['admin.menu.index', 'fa-qrcode', 'Menú QR', 'admin.menu.*', 'menu.view'],
             [['admin.catalogs.index', 'categories'], 'fa-th-large', 'Categorías', 'categories', 'catalogs.categories.view'],
             [['admin.catalogs.index', 'report_groups'], 'fa-object-group', 'Grupos de reporte', 'report_groups', 'catalogs.report_groups.view'],
             [['admin.catalogs.index', 'customers'], 'fa-address-book-o', 'Clientes', 'customers', 'catalogs.customers.view'],

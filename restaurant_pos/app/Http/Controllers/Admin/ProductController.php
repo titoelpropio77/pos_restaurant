@@ -121,6 +121,7 @@ class ProductController extends Controller
     {
         $data = $request->validate([
             'product_name' => ['required', 'string', 'max:70', Tenant::unique('products', 'product_name')->ignore($product->id)],
+            'description' => ['nullable', 'string', 'max:300'],
             'category_id' => ['required', Tenant::exists('categories')],
             'sale_price' => ['required', 'numeric', 'min:0'],
             'cost_price' => ['nullable', 'numeric', 'min:0'],
@@ -154,6 +155,7 @@ class ProductController extends Controller
             'category_id' => 'categoría',
             'sale_price' => 'precio de venta',
             'cost_price' => 'precio de costo',
+            'description' => 'descripción',
             'barcode' => 'código de barras',
             'recipe.*.supply_id' => 'insumo de la receta',
             'recipe.*.quantity' => 'cantidad de la receta',
@@ -164,6 +166,8 @@ class ProductController extends Controller
         return DB::transaction(function () use ($request, $product, $data) {
             $product->fill([
                 'product_name' => mb_strtoupper(trim($data['product_name'])),
+                // Tal como se escribe (no en mayúsculas): se lee en el menú digital
+                'description' => ($description = trim((string) ($data['description'] ?? ''))) !== '' ? $description : null,
                 'category_id' => $data['category_id'],
                 'sale_price' => $data['sale_price'],
                 'cost_price' => $data['cost_price'] ?? 0,

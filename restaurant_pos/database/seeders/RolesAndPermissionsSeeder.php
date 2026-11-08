@@ -67,6 +67,9 @@ class RolesAndPermissionsSeeder extends Seeder
             'products.update' => 'Editar productos',
             'products.delete' => 'Dar de baja productos',
         ],
+        'Menú digital' => [
+            'menu.view' => 'Ver el link y descargar el QR del menú digital',
+        ],
         'Usuarios' => [
             'users.view' => 'Ver usuarios',
             'users.create' => 'Crear usuarios',

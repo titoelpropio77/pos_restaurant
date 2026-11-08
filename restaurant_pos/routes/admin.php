@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\CashSessionController;
 use App\Http\Controllers\Admin\CatalogController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\InventoryController;
+use App\Http\Controllers\Admin\MenuQrController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\SaleController;
@@ -28,6 +29,11 @@ Route::post('products/import', [ProductController::class, 'import'])->middleware
 Route::get('products/{product}/edit', [ProductController::class, 'edit'])->middleware('permission:products.update')->name('products.edit');
 Route::put('products/{product}', [ProductController::class, 'update'])->middleware('permission:products.update')->name('products.update');
 Route::delete('products/{product}', [ProductController::class, 'destroy'])->middleware('permission:products.delete')->name('products.destroy');
+
+// Menú digital: link público y QR de cada sucursal
+Route::get('menu', [MenuQrController::class, 'index'])->middleware('permission:menu.view')->name('menu.index');
+Route::get('menu/{branch}/qr', [MenuQrController::class, 'qr'])->middleware('permission:menu.view')->name('menu.qr');
+Route::get('menu/{branch}/poster', [MenuQrController::class, 'poster'])->middleware('permission:menu.view')->name('menu.poster');
 
 // Usuarios del restaurante y su punto de venta
 Route::get('users', [UserController::class, 'index'])->middleware('permission:users.view')->name('users.index');

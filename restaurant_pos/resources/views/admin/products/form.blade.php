@@ -31,6 +31,8 @@
                     <x-admin.field name="status" label="Estado" type="select" :options="['ACTIVE' => 'Activo', 'INACTIVE' => 'Inactivo']" :value="$product->status" />
                     <x-admin.field name="asks_options" label="Pide opciones al vender" type="checkbox" :value="(bool) $product->options_mode" class="sm:col-span-2" />
                     <x-admin.field name="por_time" label="Se cobra por tiempo (billar)" type="checkbox" :value="$product->timed === 'T'" class="sm:col-span-2" />
+                    <x-admin.field name="description" label="Descripción para el menú digital" type="textarea" :value="$product->description"
+                                   help="Opcional, hasta 300 caracteres. Ej.: Carne a la plancha con arroz, papa y huevo frito." class="sm:col-span-4" />
                 </div>
             </section>
 

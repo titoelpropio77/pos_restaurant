@@ -6,6 +6,7 @@ use App\Models\Concerns\BelongsToRestaurant;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 
 /**
  * Sucursal / local del restaurante.
@@ -60,5 +61,19 @@ class Branch extends Model
     public function productsBranch(): HasMany
     {
         return $this->hasMany(BranchProduct::class);
+    }
+
+    /**
+     * Identificador del link público del menú digital. Las sucursales creadas desde el sistema
+     * administrador no lo traen: se genera la primera vez que se pide.
+     */
+    public function menuToken(): string
+    {
+        if (! $this->menu_token) {
+            $this->menu_token = Str::random(12);
+            $this->saveQuietly();
+        }
+
+        return $this->menu_token;
     }
 }

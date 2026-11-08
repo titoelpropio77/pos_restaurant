@@ -29,8 +29,8 @@ class ProductController extends Controller
 
     public const PRINTERS = ['print_kitchen' => 'Cocina', 'print_station_1' => 'Punto 1', 'print_station_2' => 'Punto 2', 'print_station_3' => 'Punto 3', 'print_station_4' => 'Punto 4'];
 
-    /** Carpeta pública de imágenes de botones; el POS sólo muestra rutas que empiezan con "legacy/". */
-    private const IMAGE_FOLDER = 'legacy/images/buttons';
+    /** Carpeta pública de imágenes subidas de productos (ignorada por git); el POS sólo muestra rutas que empiezan con "legacy/". */
+    private const IMAGE_FOLDER = 'legacy/images/products';
 
     public function index(Request $request): View
     {

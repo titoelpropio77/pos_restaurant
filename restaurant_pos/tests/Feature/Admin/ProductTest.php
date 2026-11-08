@@ -113,7 +113,7 @@ class ProductTest extends AdminTestCase
         $this->post(route('admin.products.store'), $this->data(['image' => UploadedFile::fake()->image('dish.png')]));
 
         $product = Product::where('product_name', 'CHICHARRÓN')->firstOrFail();
-        $this->assertStringStartsWith('legacy/images/buttons/', $product->image_path);
+        $this->assertStringStartsWith('legacy/images/products/', $product->image_path);
         $this->assertFileExists(public_path($product->image_path));
         @unlink(public_path($product->image_path));
     }

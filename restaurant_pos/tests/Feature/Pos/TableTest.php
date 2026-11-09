@@ -4,8 +4,10 @@ namespace Tests\Feature\Pos;
 
 use App\Models\DiningTable;
 use App\Models\Product;
+use App\Models\Restaurant;
 use App\Models\Staff;
 use App\Models\TableOrder;
+use App\Support\Tenant;
 
 class TableTest extends PosTestCase
 {
@@ -47,6 +49,28 @@ class TableTest extends PosTestCase
         $this->assertSame('4', $diningTable->people_count);
 
         $this->assertSame('LA MESA YA ESTÁ OCUPADA', $this->open($this->table1, ['FLAN' => 1])['error']);
+    }
+
+    public function test_with_code_required_validates_the_code_of_the_selected_waiter(): void
+    {
+        Restaurant::find(Tenant::id())->update(['options' => ['waiters_without_code' => false, 'without_view_employee' => false]]);
+        $waiter = Staff::first();
+        $waiter->update(['code' => '1111']);
+        $ids = Product::where('product_name', 'FLAN')->pluck('id')->all();
+        $open = fn (string $code) => $this->ajax('post', 'pos.diningTables.open', [
+            'idTable' => $this->table1->id,
+            'idWaiter' => $waiter->id,
+            'waiterCode' => $code,
+            'idProduct' => $ids,
+            'quantity' => [1],
+            'saleDate' => today()->toDateString(),
+        ])->json();
+
+        $this->assertSame('CÓDIGO DE MESERO ERRÓNEO, INTENTE NUEVAMENTE', $open((string) $waiter->id)['error']);
+        $this->assertFalse($this->table1->fresh()->isOccupied());
+
+        $this->assertSame(['error' => '', 'result' => 1], $open('1111'));
+        $this->assertSame('S', $this->table1->fresh()->occupied);
     }
 
     public function test_the_detail_uses_the_names_legacy_and_skips_the_closed(): void

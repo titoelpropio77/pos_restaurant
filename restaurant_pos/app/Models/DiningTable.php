@@ -28,6 +28,7 @@ class DiningTable extends Model
         'people_count',
         'ticket_count',
         'customer_name',
+        'waiter_name',
     ];
 
     public function branch(): BelongsTo
@@ -52,6 +53,7 @@ class DiningTable extends Model
             'ticket_count' => 0,
             'customer_name' => '',
             'color' => '',
+            'waiter_name' => '',
         ]);
     }
 

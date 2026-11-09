@@ -4,7 +4,9 @@ namespace App\Providers;
 
 use App\Auth\UserProvider;
 use App\Support\Tenant;
+use App\Support\VersionedAsset;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -23,5 +25,8 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Auth::provider('users', fn ($app, array $config) => new UserProvider($app['hash'], $config['model']));
+
+        // @versioned('js/pos/pos.js') → URL del archivo con ?v=<fecha de modificación>
+        Blade::directive('versioned', fn (string $path) => '<?php echo e('.VersionedAsset::class.'::url('.$path.')); ?>');
     }
 }

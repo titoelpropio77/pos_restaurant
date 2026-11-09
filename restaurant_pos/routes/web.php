@@ -80,6 +80,8 @@ Route::middleware(['pos', 'permission:pos.access'])->prefix('pos')->name('pos.')
     Route::post('tables/open', [TableController::class, 'open'])->middleware('permission:pos.tables.update')->name('diningTables.open');
     Route::post('tables/add', [TableController::class, 'add'])->middleware('permission:pos.tables.update')->name('diningTables.add');
     Route::post('tables/paid', [TableController::class, 'updateAfterCheckout'])->middleware('permission:pos.tables.charge')->name('diningTables.paid');
+    Route::get('tables/split/preview', [TableController::class, 'splitPreview'])->middleware('permission:pos.tables.charge')->name('diningTables.split-preview');
+    Route::post('tables/split/charge', [TableController::class, 'splitCharge'])->middleware('permission:pos.tables.charge')->name('diningTables.split-charge');
     Route::post('tables/transfer', [TableController::class, 'transfer'])->middleware('permission:pos.tables.transfer')->name('diningTables.transfer');
     Route::post('tables/void', [TableController::class, 'void'])->middleware('permission:pos.tables.void')->name('diningTables.void');
     Route::post('tables/delete-item', [TableController::class, 'deleteItem'])->middleware('permission:pos.tables.void')->name('diningTables.delete-item');

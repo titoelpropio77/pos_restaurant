@@ -22,7 +22,7 @@
     <link rel="stylesheet" href="{{ asset('legacy/css/puglins/alertify.css') }}">
     <link rel="stylesheet" href="{{ asset('legacy/css/puglins/toastr.css') }}">
     <link rel="stylesheet" href="{{ asset('legacy/css/stylesautocomplete.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/pos/pos.css') }}?v={{ filemtime(public_path('css/pos/pos.css')) }}">
+    <link rel="stylesheet" href="@versioned('css/pos/pos.css')">
     <style>
         .border { border-style: inset; border-width: medium; }
     </style>
@@ -135,7 +135,7 @@
                         </select>
                     </div>
                     <div id="divTable" class="pos-diningTables"></div>
-                    <p class="pos-hint"><i class="fa fa-info-circle"></i> Toque una mesa libre para abrirla con los productos del ticket, u ocupada para ver el detalle o agregar.</p>
+                    <p class="pos-hint"><i class="fa fa-info-circle"></i> Toque una mesa libre para abrirla (con los productos del ticket o vacía), u ocupada para agregar, ver el detalle o cobrar.</p>
                 </div>
 
                 <div class="tab-pane pos-pane" id="tab_2">
@@ -264,7 +264,7 @@
     <img src="{{ asset('legacy/images/loading1.gif') }}" style="margin: -29px 0 0 -30px; position: absolute; top: 35%; left: 39%; display: block; height: 32%;">
 </div>
 
-<script src="{{ asset('legacy/js/plugins/jquery.js') }}"></script>
+<script src="@versioned('legacy/js/plugins/jquery.js')"></script>
 <script>
     // El frontend heredado parsea cada respuesta con JSON.parse(res): se piden como texto.
     $.ajaxSetup({
@@ -272,17 +272,17 @@
         headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'), 'X-Requested-With': 'XMLHttpRequest' }
     });
 </script>
-<script src="{{ asset('legacy/js/bootstrap/bootstrap.js') }}"></script>
-<script src="{{ asset('legacy/js/plugins/alertify.js') }}"></script>
-<script src="{{ asset('legacy/js/plugins/jquery.dataTables.min.js') }}"></script>
-<script src="{{ asset('legacy/js/bootstrap/dataTables.bootstrap.js') }}"></script>
-<script src="{{ asset('legacy/js/bootstrap/bootstrap-datepicker.js') }}"></script>
-<script src="{{ asset('legacy/fullcalendar/lib/moment.min.js') }}"></script>
-<script src="{{ asset('legacy/jQuery-contextMenu/jquery.contextMenu.js') }}"></script>
-<script src="{{ asset('legacy/js/plugins/jquery.autocomplete.js') }}"></script>
-<script src="{{ asset('legacy/js/plugins/toastr.min.js') }}"></script>
-<script src="{{ asset('legacy/js/literal.js') }}"></script>
-<script src="{{ asset('legacy/js/plugins/HERRAMIENTAS.js') }}"></script>
+<script src="@versioned('legacy/js/bootstrap/bootstrap.js')"></script>
+<script src="@versioned('legacy/js/plugins/alertify.js')"></script>
+<script src="@versioned('legacy/js/plugins/jquery.dataTables.min.js')"></script>
+<script src="@versioned('legacy/js/bootstrap/dataTables.bootstrap.js')"></script>
+<script src="@versioned('legacy/js/bootstrap/bootstrap-datepicker.js')"></script>
+<script src="@versioned('legacy/fullcalendar/lib/moment.min.js')"></script>
+<script src="@versioned('legacy/jQuery-contextMenu/jquery.contextMenu.js')"></script>
+<script src="@versioned('legacy/js/plugins/jquery.autocomplete.js')"></script>
+<script src="@versioned('legacy/js/plugins/toastr.min.js')"></script>
+<script src="@versioned('legacy/js/literal.js')"></script>
+<script src="@versioned('legacy/js/plugins/HERRAMIENTAS.js')"></script>
 
 @if (! $authenticated)
     <script>$('#ModalLogin').modal('show');</script>
@@ -336,9 +336,10 @@
             .on('changeDate', function () { listHistory(); });
         myTimer();
     </script>
-    <script src="{{ asset('js/pos/print-agent.js') }}?v={{ filemtime(public_path('js/pos/print-agent.js')) }}"></script>
-    <script src="{{ asset('js/pos/ticket-print.js') }}?v={{ filemtime(public_path('js/pos/ticket-print.js')) }}"></script>
-    <script src="{{ asset('js/pos/pos.js') }}?v={{ filemtime(public_path('js/pos/pos.js')) }}"></script>
+    <script src="@versioned('js/pos/print-agent.js')"></script>
+    <script src="@versioned('js/pos/ticket-print.js')"></script>
+    <script src="@versioned('js/pos/pos.js')"></script>
+    <script src="@versioned('js/pos/tables.js')"></script>
 @endif
 
 <script>

@@ -32,7 +32,7 @@
     <link rel="icon" href="{{ asset('favicon.ico') }}">
     <link rel="preload" href="{{ asset('assets/fonts/playfair-display-latin-wght-normal.woff2') }}" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="{{ asset('css/fonts.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/menu/menu.css') }}?v={{ filemtime(public_path('css/menu/menu.css')) }}">
+    <link rel="stylesheet" href="@versioned('css/menu/menu.css')">
 </head>
 <body>
     <header class="hero wrap">
@@ -160,6 +160,6 @@
     </dialog>
 
     <script type="application/json" id="menu-data">@json($dishes, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG)</script>
-    <script src="{{ asset('js/menu/menu.js') }}?v={{ filemtime(public_path('js/menu/menu.js')) }}" defer></script>
+    <script src="@versioned('js/menu/menu.js')" defer></script>
 </body>
 </html>

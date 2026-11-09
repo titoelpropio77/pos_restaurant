@@ -9,6 +9,7 @@ use App\Models\Staff;
 use App\Models\TableOrder;
 use App\Models\User;
 use App\Support\PosContext;
+use App\Support\Tenant;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -21,9 +22,9 @@ class TableOrders
     public function __construct(private PosContext $pos) {}
 
     /**
-     * Abre una mesa libre con los productos de la primera comanda.
+     * Abre una mesa libre, con los productos de la primera comanda o sin productos.
      *
-     * @return int Número de comanda de la mesa
+     * @return int Número de comanda de la mesa (0 si se abrió sin productos)
      */
     public function open(DiningTable $diningTable, array $data, User $user): int
     {
@@ -34,18 +35,24 @@ class TableOrders
                 throw new PosException('LA MESA YA ESTÁ OCUPADA');
             }
 
-            $waiter = ($data['waiters_no_code'] ?? '') === 'waiters_no_code'
-                ? Staff::find($data['idWaiter'])
-                : Staff::where('code', $data['idWaiter'])->first();
+            $waiter = Staff::find($data['idWaiter']);
 
             if (! $waiter) {
                 throw new PosException('MESERO NO ENCONTRADO');
             }
 
-            $ticket = $diningTable->ticket_count + 1;
+            // El código del mesero no viaja al navegador: se verifica aquí contra el mesero elegido.
+            $codeRequired = ! Tenant::option('waiters_without_code') && ! Tenant::option('without_view_employee');
+            if ($codeRequired && (string) $waiter->code !== trim((string) ($data['waiterCode'] ?? ''))) {
+                throw new PosException('CÓDIGO DE MESERO ERRÓNEO, INTENTE NUEVAMENTE');
+            }
+
+            // La mesa puede abrirse sin productos: entonces no hay primera comanda todavía
+            $products = $data['idProduct'] ?? [];
+            $ticket = $diningTable->ticket_count + ($products === [] ? 0 : 1);
             $time = now()->format('G:i');
 
-            foreach ($data['idProduct'] as $i => $productId) {
+            foreach ($products as $i => $productId) {
                 $this->createItem($diningTable, $ticket, $i + 1, (int) $productId, (float) $data['quantity'][$i], [
                     'sale_date' => $data['saleDate'],
                     'sale_time' => $time,
@@ -60,6 +67,7 @@ class TableOrders
             }
 
             $this->occupy($diningTable, $ticket, $waiter->staff_color, $data['qtyCustomer'] ?? '', $this->isDiningRoom($data));
+            $diningTable->update(['waiter_name' => $waiter->staff_name]);
 
             return $ticket;
         });
@@ -90,7 +98,7 @@ class TableOrders
                     'service_type' => (string) ($data['numberTable'] ?? $diningTable->table_number),
                     'login' => $user->username,
                     'note' => $data['noteProduct'][$i] ?? '',
-                    'staff_name' => $previous?->staff_name ?? '',
+                    'staff_name' => $previous?->staff_name ?? ($diningTable->waiter_name ?? ''),
                     'time_start' => $time,
                 ]);
             }

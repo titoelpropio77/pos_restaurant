@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Pos;
 use App\Http\Controllers\Controller;
 use App\Models\DiningTable;
 use App\Models\TableOrder;
+use App\Services\Tables\SplitBill;
 use App\Services\Tables\TableOrders;
 use App\Support\PosContext;
 use App\Support\PosResponse;
@@ -56,10 +57,11 @@ class TableController extends Controller
     {
         $data = $request->validate([
             'idTable' => ['required', 'integer'],
-            'idWaiter' => ['required'],
-            'idProduct' => ['required', 'array', 'min:1'],
+            'idWaiter' => ['required', 'integer'],
+            'waiterCode' => ['nullable', 'string', 'max:30'],
+            'idProduct' => ['nullable', 'array'],
             'idProduct.*' => ['integer'],
-            'quantity' => ['required', 'array'],
+            'quantity' => ['required_with:idProduct', 'array'],
             'quantity.*' => ['numeric', 'gt:0'],
             'saleDate' => ['required', 'date'],
             'shift' => ['nullable', 'string'],
@@ -201,6 +203,58 @@ class TableController extends Controller
             ->get();
 
         return PosResponse::ok($items->isEmpty() ? '' : PosResponse::rows($items));
+    }
+
+    /**
+     * Cuenta compartida: ítems y total de la próxima parte a cobrar.
+     */
+    public function splitPreview(Request $request, SplitBill $split): JsonResponse
+    {
+        $data = $this->splitData($request);
+
+        return PosResponse::ok($split->preview($this->diningTable($data['idTable']), $data));
+    }
+
+    /**
+     * Cuenta compartida: cobra una parte como venta propia (nombre, NIT y forma de pago).
+     */
+    public function splitCharge(Request $request, SplitBill $split): JsonResponse
+    {
+        $data = $this->splitData($request, charge: true);
+
+        return PosResponse::ok($split->charge($this->diningTable($data['idTable']), $data, $request->user()));
+    }
+
+    private function splitData(Request $request, bool $charge = false): array
+    {
+        $rules = [
+            'idTable' => ['required', 'integer'],
+            'saleDate' => ['required', 'date'],
+            'mode' => ['required', 'in:equal,items'],
+            'parts' => ['required_if:mode,equal', 'nullable', 'integer', 'min:1', 'max:50'],
+            'items' => ['required_if:mode,items', 'nullable', 'array'],
+            'items.*.id' => ['required', 'integer'],
+            'items.*.quantity' => ['nullable', 'numeric', 'min:0'],
+        ];
+
+        if ($charge) {
+            $rules += [
+                'nameCustomer' => ['nullable', 'string', 'max:100'],
+                'customerTaxId' => ['nullable', 'regex:/^[0-9]*$/', 'max:20'],
+                'paymentMethod' => ['required', 'in:CONTADO,QR,CREDITO,CONSUMO'],
+                'received' => ['nullable', 'numeric', 'min:0'],
+            ];
+        }
+
+        $data = $request->validate($rules, [
+            'customerTaxId.regex' => 'EL NIT SÓLO DEBE CONTENER NÚMEROS',
+            'paymentMethod.in' => 'FORMA DE PAGO NO VÁLIDA',
+        ]);
+        $data['saleDate'] = Carbon::parse($data['saleDate'])->toDateString();
+        $data['nameCustomer'] = trim((string) ($data['nameCustomer'] ?? ''));
+        $data['customerTaxId'] = trim((string) ($data['customerTaxId'] ?? ''));
+
+        return $data;
     }
 
     private function diningTable(int $id): DiningTable

@@ -360,6 +360,7 @@
             <button type="button" style="    background-color: #ff0000;" class="btn btn-info btn-lg "  id="" onclick="voidTable()">ANULAR PERDIDO</button>                       
             <button type="button" class="btn btn-info btn-lg "  id="" onclick="transferItemSelectedTable(1)">TRASPASAR</button>                        
             <button type="button" class="btn btn-success btn-lg " onclick="payAllTable()" id="">PAGAR</button>                        
+            <button type="button" class="btn btn-lg pos-btn-split" onclick="TableService.openSplit()"><i class="fa fa-users"></i> CUENTA COMPARTIDA</button>
             <button type="button" class="btn btn-warning btn-lg " id="" onclick="imprimirProductsTables('imprimirDetalleM')" >IMPRIMIR</button>                        
             <button type="button" class="btn btn-danger btn-lg" data-dismiss="modal" onclick="optionItemTable=0">VOLVER</button>                        
 
@@ -371,6 +372,142 @@
 </div>
 
 
+
+<!-- Abrir mesa: mesero, código, personas o cliente y resumen de la primera comanda -->
+<div class="modal fade in pos-checkout pos-dialog" id="ModalOpenTable" role="dialog" data-backdrop="static">
+    <div class="modal-dialog">
+        <form class="modal-content" onsubmit="event.preventDefault(); TableService.submitOpen();" autocomplete="off">
+            <div class="pos-checkout-head">
+                <div>
+                    <span class="pos-label">Abrir mesa</span>
+                    <div class="pos-dialog-title">Mesa <span id="openTableNumber"></span></div>
+                </div>
+                <span class="pos-checkout-service-type"><i class="fa fa-cutlery"></i> Salón</span>
+            </div>
+
+            <div class="pos-dialog-body">
+                <label class="pos-checkout-field">
+                    <span class="pos-label">Mesero</span>
+                    <select id="openTableWaiter" class="form-control"></select>
+                </label>
+                <label class="pos-checkout-field" id="openTableCodeField">
+                    <span class="pos-label">Código del mesero</span>
+                    <input type="password" inputmode="numeric" id="openTableCode" class="form-control" placeholder="Ingrese su código">
+                </label>
+                <div class="pos-checkout-field" id="openTablePeopleField">
+                    <span class="pos-label">Personas</span>
+                    <div class="pos-stepper">
+                        <button type="button" onclick="TableService.stepPeople(-1)" aria-label="Menos"><i class="fa fa-minus"></i></button>
+                        <input type="number" min="1" max="99" id="openTablePeople" value="2">
+                        <button type="button" onclick="TableService.stepPeople(1)" aria-label="Más"><i class="fa fa-plus"></i></button>
+                    </div>
+                </div>
+                <label class="pos-checkout-field" id="openTableCustomerField">
+                    <span class="pos-label">Nombre del cliente</span>
+                    <input type="text" id="openTableCustomer" class="form-control" maxlength="60" placeholder="Opcional">
+                </label>
+
+                <div class="pos-open-summary" id="openTableSummary"></div>
+            </div>
+
+            <div class="pos-checkout-foot">
+                <button type="button" class="pos-checkout-volver" data-dismiss="modal"><i class="fa fa-arrow-left"></i> Volver</button>
+                <button type="submit" id="btnOpenTable" class="pos-btn-invoice pos-checkout-confirmar"><i class="fa fa-check"></i> ABRIR MESA</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Cuenta compartida: la mesa se cobra en partes, cada una con su nombre, NIT y forma de pago -->
+<div class="modal fade in pos-checkout pos-split" id="ModalSplitBill" role="dialog" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="pos-checkout-head">
+                <div>
+                    <span class="pos-label">Cuenta compartida · Mesa <span id="splitTableNumber"></span></span>
+                    <div class="pos-checkout-total">Saldo Bs <strong id="splitPending">0.00</strong></div>
+                </div>
+                <div class="pos-checkout-head-info">
+                    <span class="pos-checkout-service-type" id="splitPartLabel">Parte 1</span>
+                    <span class="pos-checkout-literal" id="splitPaidSummary"></span>
+                </div>
+            </div>
+
+            <div class="pos-split-body">
+                <section class="pos-checkout-col">
+                    <span class="pos-label">¿Qué paga este cliente?</span>
+                    <div class="pos-segmented" role="tablist">
+                        <label><input type="radio" name="splitMode" value="equal" checked onchange="TableService.setMode(this.value)"><span><i class="fa fa-pie-chart"></i> Partes iguales</span></label>
+                        <label><input type="radio" name="splitMode" value="items" onchange="TableService.setMode(this.value)"><span><i class="fa fa-list-ul"></i> Por ítems</span></label>
+                    </div>
+
+                    <div id="splitEqual" class="pos-split-equal">
+                        <span>Dividir entre</span>
+                        <div class="pos-stepper">
+                            <button type="button" onclick="TableService.stepParts(-1)" aria-label="Menos"><i class="fa fa-minus"></i></button>
+                            <input type="number" min="1" max="50" id="splitParts" value="2" onchange="TableService.setParts(this.value)">
+                            <button type="button" onclick="TableService.stepParts(1)" aria-label="Más"><i class="fa fa-plus"></i></button>
+                        </div>
+                        <span>personas</span>
+                    </div>
+
+                    <div class="pos-split-items">
+                        <table class="table pos-split-table">
+                            <thead>
+                                <tr><th>Producto</th><th class="text-right">Precio</th><th class="text-center" id="splitQtyHead">Cantidad</th><th class="text-right">Subtotal</th></tr>
+                            </thead>
+                            <tbody id="splitItems"></tbody>
+                        </table>
+                    </div>
+
+                    <div class="pos-split-part-total">
+                        <span>Total de esta parte</span>
+                        <strong>Bs <span id="splitPartTotal">0.00</span></strong>
+                    </div>
+                </section>
+
+                <section class="pos-checkout-col">
+                    <span class="pos-label">Datos del cliente</span>
+                    <label class="pos-checkout-field">
+                        <span class="pos-label">Nombre / razón social</span>
+                        <input type="text" id="splitName" class="form-control" maxlength="100" placeholder="SIN NOMBRE">
+                    </label>
+                    <label class="pos-checkout-field">
+                        <span class="pos-label">NIT / CI</span>
+                        <input type="text" id="splitTaxId" class="form-control" inputmode="numeric" maxlength="20" placeholder="0">
+                    </label>
+
+                    <span class="pos-label">Forma de pago</span>
+                    <div class="pos-checkout-methods">
+                        <label class="pos-checkout-option-name"><input type="radio" name="splitPayment" value="CONTADO" checked onchange="TableService.setPayment(this.value)"><i class="fa fa-money"></i> Efectivo</label>
+                        <label class="pos-checkout-option-name"><input type="radio" name="splitPayment" value="QR" onchange="TableService.setPayment(this.value)"><i class="fa fa-qrcode"></i> QR</label>
+                        <label class="pos-checkout-option-name"><input type="radio" name="splitPayment" value="CREDITO" onchange="TableService.setPayment(this.value)"><i class="fa fa-credit-card"></i> Tarjeta / crédito</label>
+                        <label class="pos-checkout-option-name"><input type="radio" name="splitPayment" value="CONSUMO" onchange="TableService.setPayment(this.value)"><i class="fa fa-coffee"></i> Consumo interno</label>
+                    </div>
+
+                    <div id="splitCash" class="pos-split-cash">
+                        <label class="pos-checkout-amount">
+                            <span>Bs</span>
+                            <input type="text" inputmode="decimal" id="splitReceived" placeholder="Recibido" oninput="TableService.updateChange()">
+                        </label>
+                        <button type="button" class="pos-split-exact" onclick="TableService.exact()">Exacto</button>
+                        <div class="pos-checkout-change" id="splitChangeBox">
+                            <span class="pos-label">Cambio</span>
+                            <strong id="splitChange">0.00</strong>
+                        </div>
+                    </div>
+
+                    <div class="pos-split-paid" id="splitPaidList"></div>
+                </section>
+            </div>
+
+            <div class="pos-checkout-foot">
+                <button type="button" class="pos-checkout-volver" onclick="TableService.closeSplit()"><i class="fa fa-arrow-left"></i> Volver</button>
+                <button type="button" id="btnSplitCharge" class="pos-btn-invoice pos-checkout-confirmar" onclick="TableService.chargePart()"><i class="fa fa-print"></i> COBRAR PARTE <small>Bs <span id="splitChargeTotal">0.00</span></small></button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <div class="modal fade in" id="ModalTablesEnabled" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">    

@@ -186,6 +186,36 @@ function listMenuGroup() {
 
     });
 }
+/**
+ * Tarjeta de una mesa en el salón. tableLabel guarda el nombre que el resto del JS
+ * usa como cliente (número de mesa, o el nombre del cliente en modo salón).
+ */
+function tableCard(t, state) {
+    var esc = function (v) { return $('<div>').text(v == null ? '' : v).html(); };
+    var label = dining_room == "no_dining_room" || t.customer_name == "" ? t.table_number : t.customer_name;
+    var attrs = ' idTable="' + t.id + '" numberTable="' + esc(t.table_number) + '" numberPerson="' + esc(t.people_count) + '" tableLabel="' + esc(label) + '"';
+    var meta = '';
+
+    if (state == 'free') {
+        return '<button type="button" class="agregarPM pos-table-card is-free"' + attrs + '><span class="pos-table-number">' + esc(t.table_number) + '</span><span class="pos-table-meta">Libre</span></button>';
+    }
+
+    if (dining_room == "no_dining_room") {
+        meta = t.people_count ? '<i class="fa fa-users"></i> ' + esc(t.people_count) : '';
+    } else if (t.customer_name) {
+        meta = esc(t.customer_name);
+    }
+    if (t.waiter_name) {
+        meta += (meta ? ' · ' : '') + esc(t.waiter_name.split(' ')[0]);
+    }
+    if (state == 'processing') {
+        meta = '<i class="fa fa-clock-o"></i> Cobrando…';
+    }
+
+    return '<button type="button" class="aumentarPM pos-table-card is-' + state + '"' + (state == 'processing' ? ' disabled' : '') + attrs +
+        ' style="--waiter-color:' + esc(t.color || '#E8961C') + '"><span class="pos-table-number">' + esc(t.table_number) + '</span><span class="pos-table-meta">' + meta + '</span></button>';
+}
+
 function listTables() {//lista todas las mensas
     $('#divTable').empty();
     $('#divTableEnabled').empty();
@@ -199,29 +229,28 @@ function listTables() {//lista todas las mensas
             if (json.result[i].processing != "") {
                 total++;
                 if (dining_room == "no_dining_room") {
-                    $('#divTable').append('<button disabled="" numberTable="'+json.result[i].table_number+'" numberPerson="' + json.result[i].people_count + '" idTable="' + json.result[i].id + '" class="aumentarPM btn btn-warning btn-lg" style=" background:' + json.result[i].color + ';   margin: 2px;    width: 10%;      color: black;  height: 52px;white-space: inherit;"><i class="fa fa-cutlery" aria-hidden="true"></i>' + json.result[i].table_number + '</button>');
+                    $('#divTable').append(tableCard(json.result[i], 'processing'));
                     $('#divTableEnabled').append('<button onclick="transferItemTable(this)" disabled=""  idTable="' + json.result[i].id + '" class="btn btn-warning btn-lg" style=" background:' + json.result[i].color + ';   margin: 2px;white-space: inherit;">' + json.result[i].table_number + '</button>');
                 } else {
                     customer_name=json.result[i].customer_name==""?json.result[i].table_number:json.result[i].customer_name;
-                    $('#divTable').append('<button disabled="" numberTable="'+json.result[i].table_number+'"  numberPerson="' + json.result[i].people_count + '" idTable="' + json.result[i].id + '" class="aumentarPM btn btn-warning btn-lg" style="margin: 2px;white-space: inherit; background:' + json.result[i].color + ';   margin: 2px;     color: black;   width: 10%;   height: 46PX;"><i class="fa fa-cutlery" aria-hidden="true"></i>' + customer_name + '</button>');
+                    $('#divTable').append(tableCard(json.result[i], 'processing'));
                     $('#divTableEnabled').append('<button onclick="transferItemTable(this)" disabled=""  idTable="' + json.result[i].id + '" class="btn btn-warning btn-lg" style="    color: black; background:' + json.result[i].color + ';   margin: 2px;white-space: inherit;">' + customer_name + '</button>');
 
                 }
-                // $('#divTable').append('<button  idMesa="'+json.result[i].ID+'" class="aumentarPM btn btn-warning btn-lg" style=" background:'+json.result[i].COLORES+';   margin: 2px;">' + json.result[i].NRO_MESA + '</button>');
             }
             if (json.result[i].occupied != "" && json.result[i].processing == "") {
                 total++;
                 if (dining_room == "no_dining_room") {
-                    $('#divTable').append('<button  idTable="' + json.result[i].id + '" numberTable="'+json.result[i].table_number+'" numberPerson="' + json.result[i].people_count + '" class="aumentarPM btn btn-warning btn-lg" style=" background:' + json.result[i].color + ';   margin: 2px; width: 10%;      color: black;  height: 52px;white-space: inherit;"><i class="fa fa-users" aria-hidden="true"></i>' + json.result[i].table_number + '</button>');
+                    $('#divTable').append(tableCard(json.result[i], 'busy'));
                     $('#divTableEnabled').append('<button onclick="transferItemTable(this)" status="ocupado"  idTable="' + json.result[i].id + '" class="btn btn-warning btn-lg" style=" background:' + json.result[i].color + ';   margin: 2px; width: 10%;    height: 25%;white-space: inherit;"><i class="fa fa-users" aria-hidden="true"></i>' + json.result[i].table_number + '</button>');
                 } else {
                     customer_name=json.result[i].customer_name==""?json.result[i].table_number:json.result[i].customer_name;
-                    $('#divTable').append('<button  idTable="' + json.result[i].id + '" numberTable="'+json.result[i].table_number+'" numberPerson="' + json.result[i].people_count + '" class="aumentarPM btn btn-warning btn-lg" style=" background:' + json.result[i].color + ';   margin: 2px; width: 10%;     color: black;   height: 52px;white-space: inherit;padding: 0;"><i class="fa fa-users" aria-hidden="true"></i>' + customer_name + '</button>');
+                    $('#divTable').append(tableCard(json.result[i], 'busy'));
                     $('#divTableEnabled').append('<button onclick="transferItemTable(this)" status="ocupado"  idTable="' + json.result[i].id + '" class="btn btn-warning btn-lg" style=" background:' + json.result[i].color + ';   margin: 2px; width: 10%;   height: 46PX;white-space: inherit;padding: 0;"><i class="fa fa-users" aria-hidden="true"></i>' + customer_name + '</button>');
                 }
             } else {
                 if (json.result[i].occupied == "" && json.result[i].processing == "") {
-                    $('#divTable').append("<button  idTable='" + json.result[i].id + "' numberTable='"+json.result[i].table_number+"' numberPerson='" + json.result[i].people_count + "' class='agregarPM btn btn-warning  btn-lg' style='    margin: 2px; width: 10%;       height: 52px;white-space: inherit;'>" + json.result[i].table_number + "</button>");
+                    $('#divTable').append(tableCard(json.result[i], 'free'));
                     $('#divTableEnabled').append("<button numberTable='"+json.result[i].table_number+"' onclick='transferItemTable(this)' status='abierta'  idTable='" + json.result[i].id + "'' class='btn btn-warning  btn-lg' style='    margin: 2px; width: 10%;       height: 25%;white-space: inherit;'>" + json.result[i].table_number + "</button>");
                 }
             }
@@ -1444,29 +1473,7 @@ $(function () {
 
 
 
-    $.contextMenu({
-        selector: '.agregarPM',
-        trigger: 'left',
-        callback: function (key, options) {
-
-            if ($('#selectWaiterTables').val()=="0") {
-             alertify.alert('<span style="font-weight: bold;    color: red;">ERROR</span>', "* DEBE DE SELECCIONAR EL MESERO PRIMERO", function () {
-                alertify.message('OK');
-            });
-         }else{
-
-            idTable = $(this).attr('idTable');
-            numberTable = $(this).attr('numberTable');
-            verifyEmployee($(this));   
-        }
-            // addProductTable(idMesa,nroMesa);
-        },
-        items: {
-            "AGREGAR": {name: "ABRIR"}
-
-        }
-    });
-
+    // Mesa libre: el toque lo atiende TableService.open (tables.js)
 
     $.contextMenu({
         selector: '.aumentarPM',
@@ -1480,17 +1487,17 @@ $(function () {
                 if (key === "AUMENTAR") {
                     idTable = $(this).attr('idTable');
                     numberPerson = $(this).attr('numberPerson');
-                    numberTable = $(this).text() == "" ? "0" :  $(this).attr('numberTable');
-                    nameTable = $(this).text();
+                    numberTable = $(this).attr('numberTable') || "0";
+                    nameTable = $(this).attr('tableLabel');
                     increaseProductTable(idTable, numberTable);
                 } else {
 
 
                  idTable = $(this).attr('idTable');
-                 numberPerson = dining_room=="no_dining_room"?$(this).attr('numberPerson'):$(this).text();
-                 numberTable = $(this).text() == "" ? "0" : $(this).attr('numberTable');
+                 numberPerson = dining_room=="no_dining_room"?$(this).attr('numberPerson'):$(this).attr('tableLabel');
+                 numberTable = $(this).attr('numberTable') || "0";
 
-                 nameTable = $(this).text();
+                 nameTable = $(this).attr('tableLabel');
                  listTableItem(idTable, numberTable, numberPerson);
 
              }
@@ -1702,7 +1709,9 @@ function saveExpense() {
 });
 }
 
-function addProductTable(person) {//parametro de entra cantidad de clientes en la mesa
+// person: cantidad de personas o nombre del cliente; done(true|false) avisa si la mesa se abrió.
+// Sin productos en el ticket la mesa se abre vacía y los pedidos se agregan luego con AUMENTAR.
+function addProductTable(person, done) {
     idTable = idTable;//la trae de una variable publica
     numberTable = numberTable;//la trae de una variable publica
     idWaiter = idWaiter;//la trae de una variable publica
@@ -1725,7 +1734,7 @@ function addProductTable(person) {//parametro de entra cantidad de clientes en l
         $(table_name).each(function (e) {
             var id = $(this).closest("tr").find("input[name=inputIdProduct]").val();
             var quantity = $(this).closest("tr").find("input[name=quantity]").val();
-            var nameProduct = $(this).closest("tr").find("input[name=nameProduct]").val();
+            var productName = $(this).closest("tr").find("input[name=nameProduct]").val();
             var noteProduct = $(this).closest("tr").find("input[name=noteProduct]").val();
             var price = $(this).closest("tr").find("input[name=price]").val();
             var product_name = $(this).closest("tr").find("input[name=nameProduct]").val();
@@ -1749,14 +1758,17 @@ function addProductTable(person) {//parametro de entra cantidad de clientes en l
 
             }
             if (noteProduct == "") {
-                nameProduct.push(nameProduct);
+                nameProduct.push(productName);
             } else {
-                nameProduct.push(nameProduct + "(" + noteProduct + ")");
+                nameProduct.push(productName + "(" + noteProduct + ")");
             }
         });
         imPrint+=']}';
         JSON.stringify(imPrint);
         result=JSON.parse(imPrint);
+    }
+    var withProducts = table_name.length > 0;
+    done = typeof done === 'function' ? done : function () {};
         if (billiards=="billiards") {
            quantityA.push("1");
            idProduct.push("99999");
@@ -1774,32 +1786,32 @@ function addProductTable(person) {//parametro de entra cantidad de clientes en l
 
        $.post(ROUTES.openTable, {qtyCustomer: person, note: arrayNoteProduct
         , quantity: quantityA, idWaiter: idWaiter, shift: shift, idProduct: idProduct, idTable: idTable
-        , numberTable: numberTable, saleDate: saleDate,dining_room:dining_room,waiters_no_code:waiters_no_code,NamePro:NameProduct,price:priceA,subtotal
+        , numberTable: numberTable, saleDate: saleDate,dining_room:dining_room,waiters_no_code:waiters_no_code,waiterCode:waiterCode,NamePro:NameProduct,price:priceA,subtotal
         :subtotalA,billiards:billiards,percentRest:percentRest}, function (res) {
             var json = JSON.parse(res);
             if (verifyError(json.error)) {
+                done(false);
                 return;
             }
-            var timeA=horaActualSistemaOp();
-            var PRODUCT_NAME=$('#selectWaiterTables option:selected').text();
-            // Comanda en la ticketera de la caja (json.result = número de comanda de la mesa)
-            TicketPrint.tableOrder(idTable, json.result, saleDate);
-            clearDetail();
-            alertify.success('PRODUCTOS AGREGADOS A MESA');
-
-            $('#aBilling').click();
+            var openedTable = numberTable;
+            if (withProducts) {
+                // Comanda en la ticketera de la caja (json.result = número de comanda de la mesa)
+                TicketPrint.tableOrder(idTable, json.result, saleDate);
+                clearDetail();
+                alertify.success('MESA ' + openedTable + ' ABIERTA · COMANDA ENVIADA');
+                $('#aBilling').click();
+            } else {
+                alertify.success('MESA ' + openedTable + ' ABIERTA');
+            }
+            listTables();
             idTable = "";
             numberTable = "";
+            done(true);
 
         }).fail(function(xhr, ajaxOptions, thrownError){
+            done(false);
             failErrors(xhr, ajaxOptions, thrownError);  
         });
-
-    } else {
-        alertify.alert('<span style="font-weight: bold;    color: red;">ADVERTENCIA</span>', "DEBE SELECCIONAR AL MENOS UN ITEM", function () {
-
-        });
-    }
 }
 function listWaiter() {
     $.get(ROUTES.waiters, {}, function (res) {
@@ -1829,45 +1841,7 @@ function listWaiter() {
 //     })
 // }
 idWaiter = "";
-function verifyEmployee(btnTable) {
-    validated = false;
-    if (no_staff_view=="no_staff_view") {
-       idWaiter = $('#selectWaiterTables').val();
-       addProductTable("");
-   }else{
-    alertify.prompt("CODIGO EMPLEADO", "CODIGO", "",
-        function (evt, value) {
-            idWaiter = $('#selectWaiterTables').val();
-
-            code = value.trim();
-            if (idWaiter == code || waiters_no_code=="waiters_no_code") {
-                if (dining_room == "no_dining_room") {
-                    person = prompt("POR FAVOR COLOQUE LA CANTIDAD DE PERSONAS", "");
-
-
-                } else {
-                    person = prompt("POR FAVOR COLOQUE EL NOMBRE DEL CLIENTE", "");
-
-                }
-
-                addProductTable(person);
-
-
-
-            } else {
-                alertify.error('CODIGO ERRONEO INTENTE NUEVAMENTE');
-                validated = false;
-            }
-                // GuardarProductoAGrupo(value);
-                //  alertify.success('GUARDADO CORRECTAMENTE');
-            },
-            function () {
-                // alertify.error('Cancel');
-            });
-}
-
-
-}
+// La apertura de mesas (mesero, código, personas) está en TableService (tables.js)
 timeA="";
 nameEmployeeServed="";
 function listTableItem(idTable, numberTable, numberPerson) {
@@ -1882,11 +1856,14 @@ function listTableItem(idTable, numberTable, numberPerson) {
         }
         total=0;
         if (json.result=="") {
-            alertify.alert('<span style="font-weight: bold;    color: red;">ERROR</span>', "NO ES DE LA FECHA ACTUAL", function () {
-                alertify.message('OK');
-
-            });
-            return false;
+            // Mesa abierta sin productos (o con pedidos de otra fecha): se muestra vacía para poder anularla o agregar
+            $('#tbodyTableItem').append("<tr><td colspan='6' class='pos-table-empty'><i class='fa fa-info-circle'></i> La mesa no tiene productos pendientes de hoy. Agregue pedidos con AUMENTAR o libérela con ANULAR.</td></tr>");
+            $('#spanEmpServed').text('');
+            $('#tdTotalTableItem').text((0).toFixed(3));
+            $('#ModalTableItem').modal('show');
+            $('#spanModalTableItem').text(numberTable);
+            $('#spanModalDetailNumberPerson').text(numberPerson);
+            return true;
         }
         for (var i = 0; i < json.result.length; i++) {
             // if (json.result[i].) {}
@@ -2141,7 +2118,7 @@ function increaseProductTable(idTable, numberTable) {
         $(table_name).each(function (e) {
             var id = $(this).closest("tr").find("input[name=inputIdProduct]").val();
             var quantity = $(this).closest("tr").find("input[name=quantity]").val();
-            var nameProduct = $(this).closest("tr").find("input[name=nameProduct]").val();
+            var productName = $(this).closest("tr").find("input[name=nameProduct]").val();
             var noteProduct = $(this).closest("tr").find("input[name=noteProduct]").val();
             var typeProduct = $(this).closest("tr").find("input[name=typeProduct]").val();
             var subTotal = $(this).closest("tr").find("#spanSubTotal").text();
@@ -2163,9 +2140,9 @@ function increaseProductTable(idTable, numberTable) {
 
             }
             if (noteProduct == "") {
-                nameProduct.push(nameProduct);
+                nameProduct.push(productName);
             } else {
-                nameProduct.push(nameProduct + "(" + noteProduct + ")");
+                nameProduct.push(productName + "(" + noteProduct + ")");
             }
 
         });

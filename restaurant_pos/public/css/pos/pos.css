@@ -495,9 +495,39 @@ body.pos-body-login .pos-app { display: none; }
     white-space: normal !important;
 }
 
-.pos-diningTables > button.addPeople { background: var(--pos-surface-2) !important; }
-.pos-diningTables > button.increasePeople { border-style: solid !important; border-color: rgba(0, 0, 0, .15) !important; }
-.pos-diningTables > button .fa { display: block; font-size: 16px; opacity: .7; margin-bottom: 4px; }
+/* Tarjetas de mesa (tableCard en pos.js): libre punteada, ocupada con el color del mesero */
+.pos-diningTables > .pos-table-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 6px 8px;
+    transition: transform .08s ease, box-shadow .12s ease, border-color .12s ease;
+}
+.pos-table-card .pos-table-number { font-family: var(--pos-font-display); font-size: 22px; line-height: 1; color: var(--pos-ink); }
+.pos-table-card .pos-table-meta {
+    max-width: 100%;
+    overflow: hidden;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--pos-muted);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.pos-table-card .pos-table-meta .fa { display: inline; font-size: 12px; margin: 0; }
+.pos-diningTables > .pos-table-card:hover:not([disabled]) { border-color: var(--pos-accent) !important; box-shadow: var(--pos-shadow); }
+.pos-diningTables > .pos-table-card:active:not([disabled]) { transform: scale(.97); }
+.pos-diningTables > .pos-table-card.is-free .pos-table-meta { color: var(--pos-success); }
+.pos-diningTables > .pos-table-card.is-busy,
+.pos-diningTables > .pos-table-card.is-processing {
+    border: 2px solid var(--pos-border) !important;
+    border-top: 6px solid var(--waiter-color, var(--pos-accent)) !important;
+    background: #fff !important;
+}
+.pos-diningTables > .pos-table-card.is-busy .pos-table-meta { color: var(--pos-text); }
+.pos-diningTables > .pos-table-card.is-processing { opacity: .7; cursor: not-allowed; }
+.pos-diningTables > .pos-table-card.is-processing .pos-table-meta { color: var(--pos-accent-dark); }
 
 /* ---------- Formularios de caja / domicilio ---------- */
 .pos-toolbar { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 16px; }
@@ -1136,7 +1166,9 @@ body.pos-body-login .pos-app { display: none; }
     .pos-topbar { flex-wrap: wrap; height: auto; padding: 8px 12px; }
     .pos-search { order: 3; flex-basis: 100%; max-width: none; }
     .pos-chips { flex-wrap: wrap; }
-    .pos-main { grid-template-columns: 1fr; }
+    /* minmax(0, 1fr): sin esto la columna crece al ancho de pestañas y categorías (que no se envuelven) */
+    .pos-main { grid-template-columns: minmax(0, 1fr); }
+    .pos-workspace, .pos-ticket { min-width: 0; }
     .pos-workspace { height: 55vh; }
     .pos-ticket { min-height: 75vh; }
     .pos-tabs { overflow-x: auto; flex-wrap: nowrap; }
@@ -1283,3 +1315,231 @@ body.pos-body-login .modal-backdrop.in { opacity: .15; }
 .pos-login-tc:hover { background: var(--pos-accent-soft); }
 
 .pos-login .pos-btn-invoice { height: 50px; font-size: 17px; margin-top: 6px; }
+
+/* ---------- Abrir mesa y cuenta compartida (tables.js) ---------- */
+.pos-dialog .modal-dialog { width: 460px; }
+.pos-dialog-title { font-family: var(--pos-font-display); font-size: 30px; font-weight: 700; line-height: 1.1; color: #fff; }
+.pos-dialog-body { display: flex; flex-direction: column; gap: 14px; padding: 18px 20px; }
+.pos-dialog-body .form-control { height: 42px; border-color: var(--pos-border); border-radius: var(--pos-radius-sm); box-shadow: none; font-size: 15px; }
+.pos-dialog-body .form-control:focus { border-color: var(--pos-accent); }
+.pos-dialog .pos-checkout-confirmar { flex: 1; }
+
+.pos-stepper { display: inline-flex; align-items: stretch; border: 2px solid var(--pos-border); border-radius: var(--pos-radius-sm); background: #fff; overflow: hidden; }
+.pos-stepper button { width: 46px; border: 0; background: var(--pos-surface-2); color: var(--pos-ink); font-size: 14px; }
+.pos-stepper button:hover { background: var(--pos-accent-soft); }
+.pos-stepper button:active { background: var(--pos-accent); }
+.pos-stepper input {
+    width: 64px;
+    height: 42px;
+    border: 0;
+    text-align: center;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--pos-ink);
+    font-variant-numeric: tabular-nums;
+    -moz-appearance: textfield;
+}
+.pos-stepper input::-webkit-outer-spin-button,
+.pos-stepper input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.pos-stepper.is-small button { width: 32px; font-size: 11px; }
+.pos-stepper.is-small input { width: 52px; height: 32px; font-size: 15px; }
+
+.pos-open-summary {
+    display: flex;
+    gap: 10px;
+    padding: 12px 14px;
+    border-radius: var(--pos-radius-sm);
+    background: var(--pos-surface-2);
+    color: var(--pos-text);
+}
+.pos-open-summary > .fa { margin-top: 2px; color: var(--pos-muted); }
+.pos-open-summary strong { display: block; color: var(--pos-ink); }
+.pos-open-summary span { display: block; font-size: 13px; }
+.pos-open-summary.has-items { background: var(--pos-accent-soft); }
+.pos-open-summary.has-items > .fa { color: var(--pos-accent-dark); }
+.pos-open-summary ul { margin: 6px 0 0; padding: 0; list-style: none; font-size: 13px; }
+.pos-open-summary li.is-more { color: var(--pos-muted); }
+
+.pos-btn-split { background: var(--pos-ink); color: #fff; }
+.pos-btn-split:hover, .pos-btn-split:focus { background: var(--pos-topbar-2); color: #fff; }
+.pos-table-empty { padding: 24px !important; text-align: center; color: var(--pos-muted); }
+
+.pos-split-body { display: grid; grid-template-columns: 1.35fr 1fr; gap: 14px; padding: 16px; }
+
+.pos-segmented { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; border-radius: var(--pos-radius-sm); background: var(--pos-surface-2); }
+.pos-segmented label { margin: 0; cursor: pointer; }
+.pos-segmented input { position: absolute; opacity: 0; pointer-events: none; }
+.pos-segmented span { display: block; padding: 9px 10px; border-radius: 6px; text-align: center; font-weight: 600; color: var(--pos-muted); }
+.pos-segmented input:checked + span { background: #fff; color: var(--pos-ink); box-shadow: var(--pos-shadow); }
+.pos-segmented input:focus-visible + span { outline: 2px solid var(--pos-accent); }
+
+.pos-split-equal { display: flex; align-items: center; gap: 10px; font-weight: 600; color: var(--pos-text); }
+
+.pos-split-items { max-height: 320px; overflow-y: auto; border: 1px solid var(--pos-border); border-radius: var(--pos-radius-sm); }
+.pos-split-table { margin: 0; }
+.pos-split-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: var(--pos-surface-2);
+    font-size: 11px;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: var(--pos-muted);
+    border-bottom: 0 !important;
+}
+.pos-split-table td { vertical-align: middle !important; font-variant-numeric: tabular-nums; }
+.pos-split-table td small { color: var(--pos-muted); }
+.pos-split-share { font-weight: 700; color: var(--pos-ink); }
+.pos-split-all {
+    display: block;
+    margin: 4px auto 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--pos-accent-dark);
+}
+
+.pos-split-part-total {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-top: auto;
+    padding: 12px 14px;
+    border-radius: var(--pos-radius-sm);
+    background: var(--pos-ink);
+    color: var(--pos-topbar-muted);
+    font-weight: 600;
+}
+.pos-split-part-total strong { font-size: 26px; color: var(--pos-accent); font-variant-numeric: tabular-nums; }
+
+.pos-split-cash { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
+.pos-split-cash .pos-checkout-amount input { width: 100%; height: 44px; border: 0; background: transparent; font-size: 20px; font-weight: 700; outline: none; }
+.pos-split-cash .pos-checkout-amount:focus-within { border-color: var(--pos-accent); background: #fff; }
+.pos-split-exact { padding: 0 16px; border: 0; border-radius: var(--pos-radius-sm); background: var(--pos-accent-soft); color: var(--pos-accent-dark); font-weight: 700; }
+.pos-split-cash .pos-checkout-change { grid-column: 1 / -1; display: flex; align-items: baseline; justify-content: space-between; margin: 0; }
+.pos-split-cash .pos-checkout-change strong { font-size: 24px; color: var(--pos-success); font-variant-numeric: tabular-nums; }
+.pos-split-cash .pos-checkout-change.is-missing strong { color: var(--pos-danger); }
+
+.pos-split-paid { display: flex; flex-direction: column; gap: 6px; }
+.pos-split-paid-row {
+    display: grid;
+    grid-template-columns: auto 1fr auto auto;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    border-radius: var(--pos-radius-sm);
+    background: #e3f6ec;
+    font-size: 13px;
+}
+.pos-split-paid-n { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--pos-success); color: #fff; font-weight: 700; font-size: 12px; }
+.pos-split-paid-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; color: var(--pos-ink); }
+.pos-split-paid-name small { font-weight: normal; color: var(--pos-muted); }
+.pos-split-paid-method { color: var(--pos-muted); }
+.pos-split-paid-row b { font-variant-numeric: tabular-nums; }
+
+@media (max-width: 900px) {
+    .pos-split-body { grid-template-columns: 1fr; }
+    .pos-split-items { max-height: none; }
+}
+
+/* ---------- Responsivo: tablets y teléfonos ----------
+ * En las grillas de una columna se usa minmax(0, 1fr): con 1fr la columna crece al ancho
+ * mínimo de su contenido (imágenes de billetes, tablas, pestañas) y desborda la pantalla.
+ */
+.pos-table-wrap { overflow-x: auto; }
+
+@media (max-width: 900px) {
+    .pos-checkout-body,
+    .pos-split-body,
+    .pos-hist-body { grid-template-columns: minmax(0, 1fr); }
+    .pos-checkout-col { min-width: 0; }
+    .pos-hist-list, .pos-hist-items { overflow-x: auto; }
+    #tableHistory { min-width: 560px; }
+}
+
+@media (max-width: 600px) {
+    /* Barra superior compacta: logo, chips y acciones en el menor alto posible */
+    .pos-topbar { gap: 8px; padding: 8px 10px; }
+    .pos-brand img { height: 32px; }
+    .pos-chips { flex: 1; min-width: 0; gap: 6px; justify-content: flex-end; }
+    .pos-chip, #labelUser, #labelExchangeRate, #labelShift { height: 30px; padding: 0 8px; font-size: 12px !important; }
+    .pos-chip-select select { max-width: 110px; }
+    .pos-restaurant-select { height: 30px; max-width: 130px; }
+    .pos-clock { display: none; }
+    .pos-icon-btn { width: 32px; height: 32px; font-size: 15px; }
+    .pos-search input { height: 36px; }
+
+    .pos-main { gap: 8px; padding: 8px; }
+    .pos-tabs > li > a { padding: 10px 8px; font-size: 13px; }
+    .pos-pane { padding: 12px; }
+    .pos-pane-header { flex-wrap: wrap; }
+    .pos-pane-header select { flex: 1; min-width: 0; max-width: none; }
+    .pos-workspace { height: 62vh; }
+    .pos-diningTables { grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 8px; }
+    .pos-diningTables > button { height: 72px !important; }
+    .pos-form-grid { grid-template-columns: minmax(0, 1fr); }
+    .pos-form-grid > label, .pos-span-2, .pos-span-4 { grid-column: auto; }
+
+    /* Modales: casi a pantalla completa (algunos traen width en línea) */
+    .modal-dialog,
+    .pos-checkout .modal-dialog,
+    .pos-dialog .modal-dialog { width: auto !important; max-width: none; margin: 8px !important; }
+    .modal-body { padding: 12px; }
+    .modal-body > [class*="col-"] { padding-left: 0; padding-right: 0; }
+    .modal-footer { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; padding: 10px 12px; }
+    .modal-footer:before, .modal-footer:after { display: none; }
+    .modal-footer > .btn { flex: 1 1 auto; margin: 0 !important; float: none !important; }
+    .modal-footer > [class*="col-"] { float: none; width: 100%; padding: 0; text-align: left !important; }
+
+    /* Cobro y cuenta compartida */
+    .pos-checkout-head { padding: 12px 14px; gap: 10px; }
+    .pos-checkout-total strong { font-size: 30px; }
+    .pos-checkout-body, .pos-split-body { gap: 10px; padding: 10px; }
+    .pos-checkout-col { padding: 12px; }
+    .pos-checkout-keypad button { height: 46px; }
+    .pos-checkout-foot { gap: 8px; padding: 0 10px 10px; }
+    .pos-checkout-volver { height: 52px; padding: 0 14px; }
+    .pos-checkout-confirmar { flex: 1 1 auto; height: 52px; }
+    .pos-split-equal { flex-wrap: wrap; }
+    .pos-split-table { font-size: 13px; }
+    .pos-split-table th:nth-child(2), .pos-split-table td:nth-child(2) { display: none; }
+    .pos-split-table > tbody > tr > td, .pos-split-table > thead > tr > th { padding: 6px; }
+
+    /* Detalle de mesa: sin la columna precio y botones en dos columnas */
+    #tableTableItem { font-size: 13px; }
+    #tableTableItem > thead > tr > th, #tableTableItem > tbody > tr > td, #tableTableItem > tfoot > tr > td { padding: 6px 4px; }
+    #tableTableItem th:nth-child(4), #tableTableItem td:nth-child(4) { display: none; }
+    #tableTableItem input[name=inputAction] { width: 60px !important; padding: 4px; }
+    #ModalTableItem .modal-title { font-size: 15px; }
+    #ModalTableItem .modal-footer { display: grid; grid-template-columns: 1fr 1fr; }
+    #ModalTableItem .modal-footer > .btn { width: 100%; padding: 10px 6px; font-size: 14px; white-space: normal; }
+    #ModalTableItem .modal-footer > .btn:last-child:nth-child(odd) { grid-column: 1 / -1; }
+
+    /* Histórico */
+    .pos-history .modal-dialog { margin: 0 !important; }
+    .pos-hist-head { padding: 10px 12px; gap: 8px; }
+    .pos-hist-actions { width: 100%; display: flex; gap: 6px; }
+    .pos-hist-actions .pos-hist-btn { flex: 1; }
+    .pos-hist-stats { gap: 8px; padding: 10px; }
+    .pos-hist-body { padding: 0 10px 10px; gap: 10px; }
+    .pos-hist-fields { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+
+    /* Lista de clientes: la tabla se desplaza dentro del modal */
+    #ModalListCustomer .modal-body { overflow-x: auto; }
+    #tableCustomer { font-size: 13px; }
+
+    /* Avisos sobre el contenido en pantallas angostas */
+    #toast-container.toast-bottom-center { left: 8px; right: 8px; bottom: 8px; }
+    #toast-container.toast-bottom-center > div { width: auto; }
+}
+
+@media (max-width: 400px) {
+    #tableTableItem { font-size: 12px; }
+    #tableTableItem > thead > tr > th { font-size: 10px; }
+    #tableTableItem > thead > tr > th, #tableTableItem > tbody > tr > td, #tableTableItem > tfoot > tr > td { padding: 5px 2px; }
+    #tableTableItem input[name=inputAction] { width: 48px !important; }
+    .pos-chip-select select { max-width: 90px; }
+}

@@ -73,6 +73,8 @@ class PosController extends Controller
             'openTable' => 'pos.diningTables.open',
             'addTable' => 'pos.diningTables.add',
             'tablePaid' => 'pos.diningTables.paid',
+            'tableSplitPreview' => 'pos.diningTables.split-preview',
+            'tableSplitCharge' => 'pos.diningTables.split-charge',
             'transferTable' => 'pos.diningTables.transfer',
             'voidTable' => 'pos.diningTables.void',
             'deleteItemTable' => 'pos.diningTables.delete-item',
